@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flex Ledger — Brawler Martial Flexibility Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --ink:#12151a;
+  --panel:#1b2129;
+  --panel-2:#212832;
+  --panel-3:#262f3a;
+  --border:#2b3340;
+  --border-soft:#333c49;
+  --brass:#c98a3d;
+  --brass-soft:#e0ab5f;
+  --red:#c14f4f;
+  --red-dim:#7a3232;
+  --orange:#c1752e;
+  --orange-dim:#7a4a1e;
+  --green:#5a9c78;
+  --green-dim:#2f5240;
+  --gold:#d9b34a;
+  --blue:#7fa3c9;
+  --blue-dim:#3c5674;
+  --text:#e8e3d8;
+  --muted:#8b9099;
+  --muted-2:#5f6771;
+  --display:'Oswald', sans-serif;
+  --body:'Inter', sans-serif;
+  --mono:'JetBrains Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #1a2028 0%, transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, #191d24 0%, transparent 55%),
+    var(--ink);
+  color:var(--text);
+  font-family:var(--body);
+  font-size:14px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:var(--display); text-transform:uppercase; letter-spacing:.04em; margin:0;}
+button{font-family:var(--body); cursor:pointer;}
+input,select{font-family:var(--body); color:var(--text); background:var(--panel-2); border:1px solid var(--border); border-radius:4px; padding:6px 8px;}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--brass-soft); outline-offset:1px;}
+::selection{background:var(--brass); color:#12151a;}
+a{color:var(--brass-soft);}
+
+/* ============================================================
+   SHELL / LAYOUT
+   ============================================================ */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 22px; border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg, #171b21 0%, #14181e 100%);
+  position:sticky; top:0; z-index:40;
+  flex-wrap:wrap; gap:12px;
+}
+.topbar .brand{display:flex; flex-direction:column; gap:2px;}
+.topbar .brand-row{display:flex; align-items:baseline; gap:10px;}
+.topbar .brand .mark{
+  font-family:var(--mono); font-size:11px; letter-spacing:.18em; color:var(--brass);
+  border:1px solid var(--brass-dim, var(--border-soft)); padding:3px 7px; border-radius:3px;
+}
+.topbar h1{font-size:19px; color:var(--text);}
+.topbar .sub{color:var(--muted); font-size:11.5px; font-family:var(--mono); letter-spacing:.03em;}
+
+.roster-bar{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+.roster-bar select{
+  background:var(--panel-2); border:1px solid var(--border-soft); color:var(--text);
+  border-radius:6px; padding:7px 10px; font-family:var(--mono); font-size:12px; min-width:170px;
+}
+.roster-bar button{
+  background:var(--panel-2); border:1px solid var(--border-soft); color:var(--muted);
+  border-radius:6px; padding:7px 10px; font-size:12px; line-height:1;
+}
+.roster-bar button:hover{border-color:var(--brass-soft); color:var(--text);}
+.roster-bar button.danger:hover{border-color:var(--red); color:var(--red);}
+
+.app-shell{
+  display:grid;
+  grid-template-columns: 348px 1fr;
+  gap:0;
+  align-items:start;
+  min-height:calc(100vh - 58px);
+}
+.sidebar{
+  border-right:1px solid var(--border);
+  padding:18px 18px 60px;
+  position:sticky; top:58px;
+  max-height:calc(100vh - 58px);
+  overflow-y:auto;
+  background:var(--panel);
+}
+.main{padding:18px 22px 60px; min-width:0;}
+
+@media (max-width: 900px){
+  .app-shell{grid-template-columns:1fr;}
+  .sidebar{position:static; max-height:none; border-right:none; border-bottom:1px solid var(--border);}
+}
+
+/* ============================================================
+   SIDEBAR MODULES
+   ============================================================ */
+.mod{margin-bottom:22px;}
+.mod-title{
+  font-size:11px; color:var(--muted); letter-spacing:.16em; margin-bottom:9px;
+  display:flex; align-items:center; gap:8px;
+}
+.mod-title::after{content:""; flex:1; height:1px; background:var(--border-soft);}
+
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+.field{display:flex; flex-direction:column; gap:3px;}
+.field label{font-size:10.5px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.06em;}
+.field input, .field select{width:100%;}
+
+/* Flex chain gauge — signature element */
+.flex-gauge{
+  background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:12px;
+}
+.flex-gauge .fg-row{display:flex; align-items:center; gap:0; margin:10px 0 4px;}
+.link{
+  width:26px; height:16px; border-radius:8px; border:2px solid var(--muted-2);
+  position:relative; flex-shrink:0; background:transparent;
+  transition:border-color .15s, background .15s;
+}
+.link.filled{border-color:var(--brass); background:rgba(201,138,61,.22);}
+.link-wire{width:14px; height:2px; background:var(--muted-2); flex-shrink:0;}
+.link-wire.filled{background:var(--brass);}
+.fg-caption{font-family:var(--mono); font-size:12px; color:var(--text);}
+.fg-caption b{color:var(--brass-soft);}
+.fg-note{font-size:11px; color:var(--muted); margin-top:6px;}
+
+.allowance-box{
+  background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:10px 12px;
+  font-family:var(--mono); font-size:12.5px;
+}
+.allowance-row{display:flex; justify-content:space-between; padding:2px 0;}
+.allowance-row span:first-child{color:var(--muted);}
+.allowance-total{border-top:1px dashed var(--border-soft); margin-top:6px; padding-top:6px; font-weight:700;}
+.allowance-total.over{color:var(--red);}
+.allowance-total.ok{color:var(--green);}
+
+/* weapon groups checklist */
+.chip-list{display:flex; flex-wrap:wrap; gap:6px;}
+.chip-check{
+  display:inline-flex; align-items:center; gap:5px; padding:5px 9px; border-radius:14px;
+  border:1px solid var(--border-soft); background:var(--panel-2); font-size:11.5px; user-select:none;
+  cursor:pointer; color:var(--muted);
+}
+.chip-check input{margin:0; accent-color:var(--brass);}
+.chip-check.active{border-color:var(--brass); color:var(--brass-soft); background:rgba(201,138,61,.12);}
+
+/* known feats */
+.known-search{position:relative;}
+.known-dropdown{
+  position:absolute; z-index:30; left:0; right:0; top:calc(100% + 4px);
+  background:var(--panel-3); border:1px solid var(--border-soft); border-radius:6px;
+  max-height:220px; overflow-y:auto; box-shadow:0 10px 24px rgba(0,0,0,.4);
+}
+.known-dropdown-item{padding:7px 10px; font-size:12.5px; cursor:pointer; border-bottom:1px solid var(--border);}
+.known-dropdown-item:hover{background:var(--panel-2); color:var(--brass-soft);}
+.known-dropdown-item .kdi-meta{color:var(--muted-2); font-size:10.5px; font-family:var(--mono);}
+.chips-wrap{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+.known-chip{
+  display:inline-flex; align-items:center; gap:6px; background:var(--panel-2); border:1px solid var(--border-soft);
+  border-radius:14px; padding:4px 6px 4px 10px; font-size:11.5px;
+}
+.known-chip button{background:none; border:none; color:var(--muted); font-size:13px; line-height:1; padding:0 3px;}
+.known-chip button:hover{color:var(--red);}
+.known-chip.other-chip{border-style:dashed; color:var(--muted);}
+.baseline-note{font-size:10.5px; color:var(--muted-2); margin-top:8px; line-height:1.5;}
+.other-feat-row{display:flex; gap:6px; margin-top:10px;}
+.other-feat-row input{flex:1;}
+.other-feat-row button{background:var(--panel-3); border:1px solid var(--border-soft); color:var(--text); border-radius:4px; padding:6px 10px; font-size:12px;}
+.other-feat-row button:hover{border-color:var(--brass);}
+.known-known-badge{
+  display:inline-flex; align-items:center; gap:4px; font-family:var(--mono); font-size:9.5px;
+  color:var(--blue); border:1px solid var(--blue-dim); border-radius:4px; padding:1px 6px; letter-spacing:.04em;
+}
+.known-known-badge.off{color:var(--muted-2); border-color:var(--border-soft);}
+
+/* toggles */
+.toggle-row{display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--border);}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-row .t-label{font-size:12.5px;}
+.toggle-row .t-desc{font-size:10.5px; color:var(--muted-2); margin-top:1px;}
+.switch{position:relative; width:38px; height:21px; flex-shrink:0;}
+.switch input{opacity:0; width:0; height:0;}
+.slider{position:absolute; inset:0; background:var(--panel-3); border:1px solid var(--border-soft); border-radius:22px; transition:.15s;}
+.slider::before{content:""; position:absolute; width:15px; height:15px; left:2px; top:2px; background:var(--muted); border-radius:50%; transition:.15s;}
+.switch input:checked + .slider{background:rgba(201,138,61,.25); border-color:var(--brass);}
+.switch input:checked + .slider::before{transform:translateX(17px); background:var(--brass);}
+
+/* stamina bar */
+.stamina-box{background:var(--panel-2); border:1px solid var(--border); border-radius:8px; padding:10px 12px;}
+.stamina-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;}
+.stamina-head b{font-family:var(--mono); color:var(--brass-soft);}
+.stamina-track{height:10px; border-radius:5px; background:var(--panel-3); overflow:hidden; border:1px solid var(--border-soft);}
+.stamina-fill{height:100%; background:linear-gradient(90deg, var(--green), var(--brass)); transition:width .2s;}
+.stamina-controls{display:flex; gap:6px; margin-top:8px;}
+.stamina-controls button{flex:1; background:var(--panel-3); border:1px solid var(--border-soft); color:var(--text); border-radius:5px; padding:5px; font-family:var(--mono); font-size:12px;}
+.stamina-controls button:hover{border-color:var(--brass);}
+.stamina-warn{font-size:11px; color:var(--orange); margin-top:6px;}
+
+/* ============================================================
+   MAIN — ribbon + grid
+   ============================================================ */
+.ribbon{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:18px; padding-bottom:16px; border-bottom:1px solid var(--border);}
+.tag-btn{
+  background:var(--panel-2); border:1px solid var(--border-soft); color:var(--muted);
+  padding:6px 13px; border-radius:16px; font-size:12px; letter-spacing:.02em; transition:.12s;
+}
+.tag-btn:hover{border-color:var(--brass-soft); color:var(--text);}
+.tag-btn.active{background:var(--brass); border-color:var(--brass); color:#171008; font-weight:600;}
+.tag-btn.tag-known{border-style:dashed; border-color:var(--blue-dim); color:var(--blue);}
+.tag-btn.tag-known:hover{border-color:var(--blue);}
+.tag-btn.tag-known.active{background:var(--blue); border-color:var(--blue); color:#0d1620; font-weight:600;}
+.ribbon-divider{width:1px; align-self:stretch; background:var(--border-soft); margin:0 3px;}
+
+.main-tools{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:16px; flex-wrap:wrap;}
+.result-count{font-family:var(--mono); font-size:11.5px; color:var(--muted);}
+.filter-toggle{display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--muted);}
+.filter-toggle input{accent-color:var(--brass);}
+
+.feat-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+  gap:14px;
+}
+.card{
+  background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px 15px;
+  border-left:4px solid var(--border-soft); position:relative; display:flex; flex-direction:column; gap:8px;
+}
+.card.status-legal{border-left-color:var(--green); box-shadow:inset 0 0 0 1px rgba(90,156,120,.08);}
+.card.status-flex2{border-left-color:var(--orange); box-shadow:inset 0 0 0 1px rgba(193,117,46,.08);}
+.card.status-flex3{border-left-color:var(--red); box-shadow:inset 0 0 0 1px rgba(193,79,79,.08);}
+.card.status-locked{border-left-color:var(--muted-2); opacity:.55;}
+.card.status-baseline{border-left-color:var(--brass);}
+.card.status-known{border-left-color:var(--blue); box-shadow:inset 0 0 0 1px rgba(127,163,201,.08);}
+.card.is-fav{outline:1px solid var(--gold); box-shadow:0 0 0 1px var(--gold), 0 6px 18px rgba(217,179,74,.08);}
+.card.is-dismissed{opacity:.6;}
+.card.is-dismissed.is-fav{opacity:1;}
+
+.card-head{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+.card-title{font-family:var(--display); font-size:15.5px; letter-spacing:.01em; text-transform:none;}
+.card-head-actions{display:flex; align-items:center; gap:6px; flex-shrink:0;}
+.fav-btn{background:none; border:none; font-size:17px; color:var(--muted-2); padding:0; line-height:1;}
+.fav-btn.active{color:var(--gold);}
+.dismiss-btn{background:none; border:none; font-size:16px; color:var(--muted-2); padding:0; line-height:1;}
+.dismiss-btn:hover{color:var(--red);}
+.dismiss-btn.active{color:var(--red);}
+
+.badge-row{display:flex; flex-wrap:wrap; gap:5px;}
+.badge{
+  font-family:var(--mono); font-size:10px; letter-spacing:.03em; text-transform:uppercase;
+  padding:2px 7px; border-radius:4px; border:1px solid var(--border-soft); color:var(--muted);
+}
+.badge.b-legal{color:var(--green); border-color:var(--green-dim); background:rgba(90,156,120,.08);}
+.badge.b-flex2{color:var(--orange); border-color:var(--orange-dim); background:rgba(193,117,46,.1);}
+.badge.b-flex3{color:var(--red); border-color:var(--red-dim); background:rgba(193,79,79,.1);}
+.badge.b-locked{color:var(--muted);}
+.badge.b-baseline{color:var(--brass-soft); border-color:var(--brass);}
+.badge.b-known{color:var(--blue); border-color:var(--blue-dim); background:rgba(127,163,201,.1);}
+
+.card-summary{font-size:12.5px; color:#c9c4b8; line-height:1.55;}
+.req-line{font-family:var(--mono); font-size:10.5px; color:var(--muted-2); line-height:1.6;}
+.req-line b{color:var(--muted);}
+.tag-pills{display:flex; flex-wrap:wrap; gap:4px;}
+.tag-pill{font-size:10px; background:var(--panel-2); border:1px solid var(--border); padding:1px 7px; border-radius:9px; color:var(--muted);}
+
+.combo-note{
+  font-size:11.5px; border-radius:6px; padding:8px 10px; font-family:var(--mono); line-height:1.6;
+}
+.combo-note.c2{background:rgba(193,117,46,.1); border:1px solid var(--orange-dim); color:var(--orange);}
+.combo-note.c3{background:rgba(193,79,79,.1); border:1px solid var(--red-dim); color:var(--red);}
+.chain-vis{display:flex; align-items:center; gap:4px; flex-wrap:wrap; margin-top:4px;}
+.chain-node{padding:2px 7px; border-radius:10px; font-size:10px; background:var(--panel-2); border:1px solid currentColor;}
+.chain-arrow{opacity:.7;}
+
+.lock-reason{font-size:11px; color:var(--muted-2); font-style:italic;}
+
+.trick-block{
+  background:rgba(201,138,61,.08); border:1px solid var(--brass); border-left:3px solid var(--brass);
+  border-radius:6px; padding:8px 10px; font-size:12px; color:var(--brass-soft); line-height:1.55;
+}
+.trick-block b{color:var(--gold); display:block; font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:3px;}
+
+.empty-state{padding:40px 20px; text-align:center; color:var(--muted); font-family:var(--mono); font-size:12.5px;}
+
+footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:11px; font-family:var(--mono);}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     EMBEDDED FEAT DATABASE ("feats.json")
+     Kept as a separate inert JSON script block so the data layer
+     is decoupled from the JS logic layer, while still working
+     offline as a single file (no fetch()/CORS dependency).
+     ============================================================ -->
+<script type="application/json" id="feats-data">
+[
+  {"id":"combat_expertise","name":"Combat Expertise","isCombatFeat":true,"reqBAB":1,"reqStats":{"str":0,"dex":0,"con":0,"int":13,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Defense"],"summary":"Trade attack bonus for a matching dodge bonus to AC. EITR baseline feat — always known, does not consume a manual feat slot.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point when using Combat Expertise to also gain a +2 bonus on your next combat maneuver check before the start of your next turn."},
+  {"id":"point_blank_shot","name":"Point-Blank Shot","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"+1 attack and damage with ranged weapons within 30 ft. EITR baseline feat — always known.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"power_attack","name":"Power Attack","isCombatFeat":true,"reqBAB":1,"reqStats":{"str":13,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Trade melee attack bonus for bonus damage. EITR baseline feat — always known.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point to apply Power Attack's penalty/bonus to a single combat maneuver check and its damage this round, even if the maneuver doesn't deal damage on its own."},
+  {"id":"deadly_aim","name":"Deadly Aim","isCombatFeat":true,"reqBAB":1,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Trade ranged attack bonus for bonus damage. EITR baseline feat — always known.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"piranha_strike","name":"Piranha Strike","isCombatFeat":true,"reqBAB":1,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Trade attack bonus for bonus damage with light or finesse weapons. EITR baseline feat — always known.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"deft_maneuvers","name":"Deft Maneuvers","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Combat Maneuver"],"summary":"EITR's consolidated replacement for Improved Trip, Improved Disarm, and Improved Feint. Grants a +2 bonus on trip and disarm combat maneuver checks, removes the attack of opportunity you'd otherwise provoke when attempting either maneuver, lets you feint as a move action instead of a standard action, and gives you a +2 bonus to your own CMD against trip and disarm attempts made against you. Serves as the prerequisite for Greater Trip, Greater Disarm, and Greater Feint in place of Combat Expertise.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point on a maneuver made possible by this feat: on a successful trip, also move the target 5 feet to an open square of your choice; on a successful disarm, fling the weapon up to 15 feet away instead of to the ground; on a successful feint, deny the target's Dex bonus until the start of your next turn instead of just your next attack."},
+  {"id":"powerful_maneuvers","name":"Powerful Maneuvers","isCombatFeat":true,"reqBAB":1,"reqStats":{"str":13,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Combat Maneuver"],"summary":"EITR's consolidated replacement for Improved Bull Rush, Improved Overrun, and Improved Sunder. Grants a +2 bonus on bull rush, overrun, and sunder combat maneuver checks, and removes the attack of opportunity you'd otherwise provoke when attempting any of them. Serves as the prerequisite for Greater Bull Rush, Greater Overrun, and Greater Sunder in place of Power Attack.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point on a maneuver made possible by this feat: on a successful bull rush, knock the target prone if its forced movement ends against a solid obstacle; on a successful overrun, also knock the target prone; on a successful sunder, ignore up to 5 points of the target's hardness."},
+  {"id":"combat_stamina","name":"Combat Stamina","isCombatFeat":true,"reqBAB":1,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Stamina"],"summary":"Pathfinder Unchained feat — gain a pool of stamina points equal to BAB + Con modifier, spendable to fuel combat tricks on qualifying feats. Add this to 'Feats The Character Has' to activate the Stamina Pool tracker.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"unarmed_combatant","name":"Unarmed Combatant","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"EITR's consolidated renaming of Improved Unarmed Strike — unarmed strikes count as both manufactured and natural weapons, deal lethal or nonlethal damage at will, and never provoke attacks of opportunity. Brawlers gain this automatically as an EITR baseline feat.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"weapon_finesse","name":"Weapon Finesse","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Style","Offense"],"summary":"Use Dex modifier instead of Str on attack rolls with light and finesse weapons. Ruleset note: any feat that lists Weapon Finesse as a prerequisite treats it as automatically satisfied for all characters.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"simple_weapon_proficiency","name":"Simple Weapon Proficiency","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Proficiency"],"summary":"No penalty on attack rolls with simple weapons. A combat feat, so it can be gained temporarily via Martial Flexibility if the character somehow lacks it (rare for a Brawler, who has it from 1st level).","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"martial_weapon_proficiency","name":"Martial Weapon Proficiency","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Proficiency"],"summary":"No penalty on attack rolls with one chosen martial weapon. Selected per-use when flexed — pick the specific martial weapon at the moment you gain the benefit.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"exotic_weapon_proficiency","name":"Exotic Weapon Proficiency","isCombatFeat":true,"reqBAB":1,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Proficiency"],"summary":"No penalty on attack rolls with one chosen exotic weapon. Selected per-use when flexed — pick the specific exotic weapon at the moment you gain the benefit; a classic Martial Flexibility corner case since it lets a Brawler wield an unfamiliar exotic weapon on the fly.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"dodge","name":"Dodge","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Defense"],"summary":"EITR merges Mobility into this feat entirely — Mobility no longer exists as a separate feat. Grants a +1 dodge bonus to AC against all attacks, increasing to +4 against attacks of opportunity provoked by movement.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point as an immediate action to double your current Dodge bonus (either the +1 general bonus or the +4 movement bonus, whichever applies) against a single attack that would otherwise hit you."},
+  {"id":"spring_attack","name":"Spring Attack","isCombatFeat":true,"reqBAB":4,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["dodge"],"reqWeaponGroup":null,"tags":["Offense","Style"],"summary":"Move before and after a melee attack without provoking an attack of opportunity from the target. Prerequisite is Dodge alone under EITR, since Mobility's effect is already folded into Dodge.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point when using Spring Attack to ignore attacks of opportunity from up to one additional creature you moved past this turn."},
+
+  {"id":"greater_trip","name":"Greater Trip","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["deft_maneuvers"],"reqWeaponGroup":null,"tags":["Combat Maneuver","Trip"],"summary":"Allies get an attack of opportunity against any foe you successfully trip.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"greater_disarm","name":"Greater Disarm","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["deft_maneuvers"],"reqWeaponGroup":null,"tags":["Combat Maneuver"],"summary":"+2 further on disarm checks; foes cannot immediately recover a disarmed weapon.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"greater_feint","name":"Greater Feint","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["deft_maneuvers"],"reqWeaponGroup":null,"tags":["Offense","Style"],"summary":"A successful feint denies the target its Dex bonus against you until the start of your next turn.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"improved_grapple","name":"Improved Grapple","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["unarmed_combatant"],"reqWeaponGroup":null,"tags":["Combat Maneuver","Grapple"],"summary":"No attack of opportunity when grappling; +2 on the check. Unarmed Combatant prerequisite is an EITR baseline feat, so it's satisfied automatically.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point on a successful grapple check to move the grappled creature 5 feet as part of the same action."},
+  {"id":"greater_grapple","name":"Greater Grapple","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["improved_grapple"],"reqWeaponGroup":null,"tags":["Combat Maneuver","Grapple"],"summary":"No attack of opportunity to maintain a grapple; +2 further on grapple checks; grapple as a move action.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"greater_bull_rush","name":"Greater Bull Rush","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["powerful_maneuvers"],"reqWeaponGroup":null,"tags":["Combat Maneuver","Offense"],"summary":"+2 further on bull rush checks; allies get an attack of opportunity against a creature you bull rush.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"combat_reflexes","name":"Combat Reflexes","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Defense"],"summary":"Make additional attacks of opportunity equal to your Dex bonus; may act on attacks of opportunity even when flat-footed.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point to make one attack of opportunity beyond your normal limit this round."},
+  {"id":"stand_still","name":"Stand Still","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["combat_reflexes"],"reqWeaponGroup":null,"tags":["Combat Maneuver","Defense"],"summary":"Use an attack of opportunity to make a combat maneuver check to halt an opponent's movement instead of dealing damage.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"cleave","name":"Cleave","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":13,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["power_attack"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Take a further swing at an adjacent foe after felling an opponent, at a -2 penalty to AC until your next turn.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point when you use Cleave to avoid the -2 AC penalty for the round."},
+  {"id":"great_cleave","name":"Great Cleave","isCombatFeat":true,"reqBAB":4,"reqStats":{"str":13,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["cleave","power_attack"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"No limit to the number of additional Cleave attacks in a round as long as each successive blow fells its target.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"two_weapon_fighting","name":"Two-Weapon Fighting","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":15,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Reduces the penalties for fighting with two weapons (or two-handed unarmed strikes).","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point to reduce your two-weapon fighting penalties by an additional -2 for one full round."},
+  {"id":"greater_two_weapon_fighting","name":"Greater Two-Weapon Fighting","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":17,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["two_weapon_fighting"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"EITR's consolidated replacement for Improved Two-Weapon Fighting, which no longer exists as a separate feat — this single feat now covers both tiers. Prerequisites drop to Dex 17, Two-Weapon Fighting, BAB +6 (down from the old Dex 19 / BAB +11 for the vanilla Greater version). Grants a second off-hand attack at a -5 penalty immediately, and once your BAB reaches +11 you also gain the third off-hand attack at -10, same as the old Greater Two-Weapon Fighting granted on its own.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"vital_strike","name":"Vital Strike","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Roll your weapon's (or unarmed strike's) damage dice twice on a single standard-action attack.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point when using Vital Strike to add one extra weapon damage die beyond the normal doubling."},
+
+  {"id":"precise_shot","name":"Precise Shot","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"No -4 penalty on ranged attacks against a target engaged in melee. Since Point-Blank Shot is an EITR baseline feat granted to everyone, Precise Shot has no prerequisite of its own and is now the entry point for the rest of the archery feat chain — every feat that used to require Point-Blank Shot requires this instead.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"far_shot","name":"Far Shot","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Halves the range penalty for thrown weapons and increases projectile weapon range increments by 50%. Its only vanilla prerequisite was Point-Blank Shot, which is gone as a standalone feat under EITR, so Far Shot now has no prerequisite at all.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"rapid_shot","name":"Rapid Shot","isCombatFeat":true,"reqBAB":1,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["precise_shot"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Make one extra ranged attack each round at your full base attack bonus, but every ranged attack you make that round takes a -2 penalty. Prerequisite swaps Point-Blank Shot for Precise Shot under EITR.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"manyshot","name":"Manyshot","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":17,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["precise_shot"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"With a bow, your first ranged attack of a full-attack action fires two arrows that both use the same attack roll. Prerequisite swaps Point-Blank Shot for Precise Shot under EITR.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"improved_precise_shot","name":"Improved Precise Shot","isCombatFeat":true,"reqBAB":11,"reqStats":{"str":0,"dex":19,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["precise_shot"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Your ranged attacks ignore the AC bonus from anything less than total cover and the miss chance from anything less than total concealment. Prerequisite swaps Point-Blank Shot for Precise Shot under EITR.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"improved_vital_strike","name":"Improved Vital Strike","isCombatFeat":true,"reqBAB":11,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["vital_strike"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Roll your weapon's damage dice three times on a single standard-action attack.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"weapon_focus_close","name":"Weapon Focus (Close)","isCombatFeat":true,"reqBAB":1,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":"Close","tags":["Offense"],"summary":"+1 attack bonus with all weapons (including unarmed strikes) in the EITR 'Close' weapon group.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point before an attack roll with a Close-group weapon to treat that single attack as a critical threat on a natural 19-20."},
+
+  {"id":"snapping_turtle_style","name":"Snapping Turtle Style","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":13,"cha":0},"reqSkills":{},"reqFeats":["unarmed_combatant"],"reqWeaponGroup":null,"tags":["Style","Defense"],"summary":"While unarmed and using Combat Expertise, gain a shield bonus to AC equal to the AC penalty you take from Combat Expertise.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point to also apply the Snapping Turtle Style shield bonus against touch attacks for one round."},
+
+  {"id":"dazzling_display","name":"Dazzling Display","isCombatFeat":true,"reqBAB":1,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["weapon_focus_close"],"reqWeaponGroup":null,"tags":["Offense","Style"],"summary":"Spend a full-round action performing a weapon show with a weapon you have Weapon Focus in to demoralize every foe within 30 feet who can see you.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point when using Dazzling Display to perform it as a standard action instead of a full-round action."},
+  {"id":"shatter_defenses","name":"Shatter Defenses","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["dazzling_display"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Melee attacks against a target you have demoralized deny that target its Dexterity bonus to AC for as long as it remains shaken (or worse) of you.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"greater_overrun","name":"Greater Overrun","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["powerful_maneuvers"],"reqWeaponGroup":null,"tags":["Combat Maneuver","Offense"],"summary":"+2 further on overrun checks; allies get an attack of opportunity against a creature you overrun.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"greater_sunder","name":"Greater Sunder","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["powerful_maneuvers"],"reqWeaponGroup":null,"tags":["Combat Maneuver","Offense"],"summary":"+2 further on sunder checks; excess damage that destroys an item carries over to the item's wielder.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"improved_reposition","name":"Improved Reposition","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["combat_expertise"],"reqWeaponGroup":null,"tags":["Combat Maneuver"],"summary":"No attack of opportunity when repositioning a foe; +2 on the check.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"greater_reposition","name":"Greater Reposition","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["improved_reposition","combat_expertise"],"reqWeaponGroup":null,"tags":["Combat Maneuver"],"summary":"+2 further on reposition checks; the target does not get to choose where it ends up.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"improved_drag","name":"Improved Drag","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":13,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["power_attack"],"reqWeaponGroup":null,"tags":["Combat Maneuver","Offense"],"summary":"No attack of opportunity when dragging a foe; +2 on the check.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"greater_drag","name":"Greater Drag","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":13,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["improved_drag","power_attack"],"reqWeaponGroup":null,"tags":["Combat Maneuver","Offense"],"summary":"+2 further on drag checks; you may drag the target an extra 5 feet for every 5 by which the check exceeds the target's CMD.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"improved_steal","name":"Improved Steal","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{"sleight_of_hand":1},"reqFeats":["combat_expertise"],"reqWeaponGroup":null,"tags":["Combat Maneuver"],"summary":"No attack of opportunity when stealing an item; +2 on the check; the target doesn't automatically notice the attempt.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"improved_critical","name":"Improved Critical (Close)","isCombatFeat":true,"reqBAB":8,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":"Close","tags":["Offense"],"summary":"Double the threat range of weapons (and unarmed strikes) in the EITR 'Close' weapon group.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point before the roll to also increase the critical multiplier by +1 on a single confirmed critical hit this round."},
+  {"id":"blind_fight","name":"Blind-Fight","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Defense","Utility"],"summary":"Reroll a miss chance once against concealed foes; total concealment attackers don't get the usual +2 to hit you unseen; move at full speed while blinded without a Perception penalty.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"step_up","name":"Step Up","isCombatFeat":true,"reqBAB":1,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Defense"],"summary":"When a foe you threaten takes a 5-foot step away from you, you may take a 5-foot step to remain adjacent to it as an immediate action.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point to use Step Up even when the triggering foe moves more than 5 feet, as long as your total movement to follow doesn't exceed your speed."},
+  {"id":"following_step","name":"Following Step","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["step_up"],"reqWeaponGroup":null,"tags":["Defense"],"summary":"When using Step Up, move up to 10 feet instead of 5, and make a free bull rush attempt against the target of your Step Up.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"crane_style","name":"Crane Style","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["unarmed_combatant"],"reqWeaponGroup":null,"tags":["Style","Defense"],"summary":"While unarmed and not wielding a weapon in your other hand, gain +2 AC and take no penalty on attack rolls when fighting defensively or using Combat Expertise.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point to increase the Crane Style AC bonus to +4 for one round."},
+  {"id":"crane_wing","name":"Crane Wing","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["crane_style"],"reqWeaponGroup":null,"tags":["Style","Defense"],"summary":"Once per round while using Crane Style, deflect a single melee attack as if using the Deflect Arrows feat.","hasStaminaTrick":false,"staminaTrickText":""},
+  {"id":"crane_riposte","name":"Crane Riposte","isCombatFeat":true,"reqBAB":11,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["crane_wing","crane_style"],"reqWeaponGroup":null,"tags":["Style","Offense"],"summary":"Whenever you deflect an attack with Crane Wing, you may make an immediate attack of opportunity against the foe whose attack you deflected.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"dragon_style","name":"Dragon Style","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":13,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["unarmed_combatant"],"reqWeaponGroup":null,"tags":["Style","Offense"],"summary":"While unarmed, your unarmed strikes ignore an amount of damage reduction equal to your level, and you may make a free trip attempt after a successful unarmed strike.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point to add +2 to the free trip attempt granted by Dragon Style this round."},
+
+  {"id":"snake_style","name":"Snake Style","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":15,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["unarmed_combatant","weapon_finesse"],"reqWeaponGroup":null,"tags":["Style","Offense"],"summary":"While unarmed, you may add your Dex modifier instead of Str to unarmed damage rolls, and your unarmed strikes threaten squares as if wielding a reach weapon against foes adjacent to you. Weapon Finesse prerequisite is automatically satisfied under this ruleset.","hasStaminaTrick":false,"staminaTrickText":""},
+
+  {"id":"scorpion_style","name":"Scorpion Style","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":13,"cha":0},"reqSkills":{},"reqFeats":["unarmed_combatant"],"reqWeaponGroup":null,"tags":["Style","Offense"],"summary":"A successful unarmed strike while using Scorpion Style forces a Fortitude save or the target's speed is reduced to 5 feet until the end of your next turn.","hasStaminaTrick":true,"staminaTrickText":"Spend 1 stamina point to impose a -2 penalty on the target's Fortitude save against the Scorpion Style effect this round."},
+
+  {"id":"gorgons_fist","name":"Gorgon's Fist","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":13,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["unarmed_combatant"],"reqWeaponGroup":null,"tags":["Style","Offense"],"summary":"Once per round, a successful unarmed strike against a target already staggered or worse forces a Fortitude save or the target is staggered for 1 additional round (or entirely unable to act if already staggered from this feat).","hasStaminaTrick":false,"staminaTrickText":""}
+]
+</script>
+
+<!-- ============================================================
+     APP MARKUP
+     ============================================================ -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-row">
+      <span class="mark">MF//ENGINE</span>
+      <h1>Flex Ledger</h1>
+    </div>
+    <div class="sub">Brawler · Martial Flexibility · PF1E + EITR + Unchained Stamina</div>
+  </div>
+  <div class="roster-bar">
+    <select id="roster-select" title="Active character"></select>
+    <button id="roster-new" type="button" title="Create a new character">+ New</button>
+    <button id="roster-duplicate" type="button" title="Duplicate this character">⧉ Duplicate</button>
+    <button id="roster-delete" type="button" class="danger" title="Delete this character">✕ Delete</button>
+  </div>
+</div>
+
+<div class="app-shell">
+
+  <!-- ======================= SIDEBAR ======================= -->
+  <aside class="sidebar">
+
+    <div class="mod">
+      <div class="mod-title">Character</div>
+      <div class="field" style="margin-bottom:8px;">
+        <label for="f-name">Name</label>
+        <input id="f-name" type="text" placeholder="Unnamed Brawler">
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label for="f-level">Level</label>
+          <input id="f-level" type="number" min="1" max="20" value="1">
+        </div>
+        <div class="field">
+          <label for="f-bab">Base Attack Bonus</label>
+          <input id="f-bab" type="number" min="0" max="20" value="1">
+        </div>
+      </div>
+    </div>
+
+    <div class="mod">
+      <div class="mod-title">Martial Flexibility Slots</div>
+      <div class="flex-gauge">
+        <div class="fg-caption"><b id="fg-count">1</b> flex slot<span id="fg-plural">s</span> per use — chain depth available</div>
+        <div class="fg-row" id="fg-links"></div>
+        <div class="fg-note">1–5: 1 slot &nbsp;·&nbsp; 6–9: 2 slots &nbsp;·&nbsp; 10+: 3 slots</div>
+      </div>
+    </div>
+
+    <div class="mod">
+      <div class="mod-title">Permanent Feat Allowance</div>
+      <div class="allowance-box">
+        <div class="allowance-row"><span>Leveling feats (odd levels)</span><span id="al-odd">1</span></div>
+        <div class="allowance-row"><span>Brawler bonus combat feats</span><span id="al-bonus">0</span></div>
+        <div class="allowance-row allowance-total"><span>Total earned</span><span id="al-total">1</span></div>
+        <div class="allowance-row"><span>Manually known (entered)</span><span id="al-known">0</span></div>
+      </div>
+    </div>
+
+    <div class="mod">
+      <div class="mod-title">Attributes</div>
+      <div class="grid-3">
+        <div class="field"><label for="s-str">Str</label><input id="s-str" type="number" min="1" max="30" value="10"></div>
+        <div class="field"><label for="s-dex">Dex</label><input id="s-dex" type="number" min="1" max="30" value="10"></div>
+        <div class="field"><label for="s-con">Con</label><input id="s-con" type="number" min="1" max="30" value="10"></div>
+        <div class="field"><label for="s-int">Int</label><input id="s-int" type="number" min="1" max="30" value="10"></div>
+        <div class="field"><label for="s-wis">Wis</label><input id="s-wis" type="number" min="1" max="30" value="10"></div>
+        <div class="field"><label for="s-cha">Cha</label><input id="s-cha" type="number" min="1" max="30" value="10"></div>
+      </div>
+      <div class="baseline-note">Intelligence is auto-treated as 13 for combat feat prerequisites (Martial Flexibility grants this while a Brawler level is possessed) — entered Int score is used for everything else.</div>
+    </div>
+
+    <div class="mod">
+      <div class="mod-title">Skill Ranks</div>
+      <div class="grid-2">
+        <div class="field"><label for="sk-bluff">Bluff</label><input id="sk-bluff" type="number" min="0" max="23" value="0"></div>
+        <div class="field"><label for="sk-acrobatics">Acrobatics</label><input id="sk-acrobatics" type="number" min="0" max="23" value="0"></div>
+        <div class="field"><label for="sk-sleight">Sleight of Hand</label><input id="sk-sleight" type="number" min="0" max="23" value="0"></div>
+      </div>
+    </div>
+
+    <div class="mod">
+      <div class="mod-title">EITR Weapon Group Mastery</div>
+      <div class="chip-list" id="weapon-groups"></div>
+    </div>
+
+    <div class="mod">
+      <div class="mod-title">Feats The Character Has</div>
+      <div class="known-search">
+        <input id="known-search-input" type="text" placeholder="Search combat feats to add…" autocomplete="off">
+        <div id="known-dropdown" class="known-dropdown" style="display:none;"></div>
+      </div>
+      <div class="chips-wrap" id="known-chips"></div>
+
+      <div class="other-feat-row">
+        <input id="other-feat-input" type="text" placeholder="Other feat not in the list (e.g. Toughness)…" autocomplete="off">
+        <button id="other-feat-add" type="button">Add</button>
+      </div>
+      <div class="chips-wrap" id="other-chips"></div>
+
+      <div class="baseline-note">Every feat entered here — from the search above or the free-text field — is folded into the eligibility engine, the prerequisite-chain resolver, and the Permanent Feat Allowance count below. EITR baseline feats (Combat Expertise, Point-Blank Shot, Power Attack, Deadly Aim, Piranha Strike) plus Unarmed Combatant (the Brawler's free class-feature grant) are injected automatically and never need to be added here. Deft Maneuvers, Powerful Maneuvers, and Combat Stamina are ordinary combat feats under EITR — add them here like any other if the character has taken them. Free-text entries count toward your feat allowance but, since they're outside the combat-feat database, can't unlock prerequisite chains for other feats.</div>
+    </div>
+
+    <div class="mod">
+      <div class="mod-title">Global Toggles</div>
+      <div class="toggle-row">
+        <div><div class="t-label">Combat Stamina feat</div><div class="t-desc" id="t-hasStamina-desc">Derived from "Combat Stamina" in your feat list below</div></div>
+        <span class="known-known-badge" id="t-hasStamina-badge">— NOT TAKEN</span>
+      </div>
+      <div class="toggle-row">
+        <div><div class="t-label">Use Stamina rules</div><div class="t-desc">Enable Unchained Combat Tricks display</div></div>
+        <label class="switch"><input type="checkbox" id="t-useStamina"><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <div class="mod" id="stamina-mod" style="display:none;">
+      <div class="mod-title">Stamina Pool</div>
+      <div class="stamina-box">
+        <div class="stamina-head"><span>Current / Max</span><b id="stamina-readout">0 / 0</b></div>
+        <div class="stamina-track"><div class="stamina-fill" id="stamina-fill" style="width:0%;"></div></div>
+        <div class="stamina-controls">
+          <button id="stamina-minus" type="button">− Spend</button>
+          <button id="stamina-reset" type="button">↺ Full Rest</button>
+        </div>
+        <div class="stamina-warn" id="stamina-warn" style="display:none;">Combat Stamina feat not taken — pool cannot be spent until acquired.</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ======================= MAIN ======================= -->
+  <main class="main">
+
+    <div class="ribbon" id="tag-ribbon"></div>
+
+    <div class="main-tools">
+      <div class="result-count" id="result-count">— feats</div>
+      <label class="filter-toggle"><input type="checkbox" id="show-locked" checked> Show locked feats</label>
+    </div>
+
+    <div class="feat-grid" id="feat-grid"></div>
+
+  </main>
+</div>
+
+<footer class="credits">Flex Ledger — client-side only, nothing leaves your browser. State persists to localStorage.</footer>
+
+<!-- ============================================================
+     APPLICATION LOGIC
+     ============================================================ -->
+<script>
+(function(){
+  "use strict";
+
+  /* ----------------------------------------------------------
+     0. DATA LAYER
+     ---------------------------------------------------------- */
+  const FEATS = JSON.parse(document.getElementById('feats-data').textContent);
+  const FEATS_BY_ID = {};
+  FEATS.forEach(f => FEATS_BY_ID[f.id] = f);
+
+  // Two different reasons a feat ends up "always known" for this app's
+  // single-class Brawler: the first five are EITR's universal feat-tax
+  // removal (every character gets them, regardless of class). Unarmed
+  // Combatant is different — it's the Brawler class feature grant
+  // (Brawlers, like Monks, get it free at 1st level) rather than an
+  // EITR ruleset feat, but it's just as unconditionally "always known"
+  // for the purposes of this tracker.
+  const BASELINE_FEAT_IDS = [
+    "combat_expertise","point_blank_shot","power_attack",
+    "deadly_aim","piranha_strike",
+    "unarmed_combatant"
+  ];
+  const WEAPON_FINESSE_ID = "weapon_finesse";
+
+  const WEAPON_GROUPS = ["Axes","Bows","Close","Crossbows","Flails","Heavy Blades",
+    "Light Blades","Monk","Natural","Polearms","Spears","Thrown"];
+
+  const ALL_TAGS = Array.from(new Set(FEATS.flatMap(f => f.tags))).sort();
+
+  // "Known" is a meta-filter, not a data-driven tactical tag — it depends
+  // on character state (manually known + always-known baseline feats),
+  // not on any fixed property of the feat itself, so it's kept separate
+  // from ALL_TAGS and rendered with its own accent in the ribbon.
+  const KNOWN_TAG = 'Known';
+
+  const ROSTER_KEY = "flexLedger.roster.v1";
+  const LEGACY_SINGLE_KEY = "flexLedger.character.v1"; // pre-roster save, migrated on first load
+
+  /* ----------------------------------------------------------
+     1. STATE — now one character among many in a roster.
+     `state` always points at roster.characters[roster.activeId];
+     switching characters simply repoints that reference and
+     re-syncs/re-renders the whole UI against it.
+     ---------------------------------------------------------- */
+  function defaultState(){
+    return {
+      name:"", level:1, bab:1,
+      stats:{str:10,dex:10,con:10,int:10,wis:10,cha:10},
+      skills:{bluff:0, acrobatics:0, sleight_of_hand:0},
+      weaponGroups:[],
+      knownFeats:[],
+      otherFeats:[],
+      favoritedFeats:[],
+      dismissedFeats:[],
+      useStaminaRules:false,
+      staminaSpent:0,
+      activeTag:"All",
+      showLocked:true
+    };
+  }
+
+  function normalizeCharacterState(raw){
+    const d = defaultState();
+    const merged = Object.assign({}, d, raw || {});
+    merged.stats = Object.assign({}, d.stats, (raw && raw.stats) || {});
+    merged.skills = Object.assign({}, d.skills, (raw && raw.skills) || {});
+    return merged;
+  }
+
+  function makeCharacterId(){
+    return "c_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
+  }
+
+  function loadRoster(){
+    try{
+      const raw = localStorage.getItem(ROSTER_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(parsed && parsed.characters && parsed.activeId && parsed.characters[parsed.activeId]){
+          Object.keys(parsed.characters).forEach(id => {
+            parsed.characters[id] = normalizeCharacterState(parsed.characters[id]);
+          });
+          if(!Array.isArray(parsed.order) || parsed.order.length !== Object.keys(parsed.characters).length){
+            parsed.order = Object.keys(parsed.characters);
+          }
+          return parsed;
+        }
+      }
+    }catch(e){
+      console.warn("Could not parse saved roster, checking for a legacy single-character save.", e);
+    }
+
+    // One-time migration from the original single-character storage format.
+    try{
+      const legacyRaw = localStorage.getItem(LEGACY_SINGLE_KEY);
+      if(legacyRaw){
+        const legacy = normalizeCharacterState(JSON.parse(legacyRaw));
+        const id = makeCharacterId();
+        return { activeId:id, order:[id], characters:{ [id]: legacy } };
+      }
+    }catch(e){
+      console.warn("Could not parse legacy single-character save, starting fresh.", e);
+    }
+
+    const id = makeCharacterId();
+    const fresh = defaultState();
+    fresh.name = "New Brawler";
+    return { activeId:id, order:[id], characters:{ [id]: fresh } };
+  }
+
+  function saveRoster(){
+    localStorage.setItem(ROSTER_KEY, JSON.stringify(roster));
+  }
+
+  let roster = loadRoster();
+  let state = roster.characters[roster.activeId];
+
+  function switchActiveCharacter(id){
+    if(!roster.characters[id]) return;
+    roster.activeId = id;
+    state = roster.characters[id];
+    syncInputsFromState();
+    saveRoster();
+    render();
+  }
+
+  function createNewCharacter(){
+    const id = makeCharacterId();
+    const fresh = defaultState();
+    fresh.name = "New Brawler";
+    roster.characters[id] = fresh;
+    roster.order.push(id);
+    switchActiveCharacter(id);
+  }
+
+  function duplicateActiveCharacter(){
+    const id = makeCharacterId();
+    const clone = JSON.parse(JSON.stringify(state));
+    clone.name = (state.name || "Unnamed Brawler") + " (Copy)";
+    roster.characters[id] = clone;
+    roster.order.push(id);
+    switchActiveCharacter(id);
+  }
+
+  function deleteActiveCharacter(){
+    if(roster.order.length <= 1){
+      alert('At least one character has to exist — create a new character before deleting this one.');
+      return;
+    }
+    const label = state.name || "this unnamed character";
+    if(!confirm('Delete "'+label+'"? This cannot be undone.')) return;
+    const idToDelete = roster.activeId;
+    const idx = roster.order.indexOf(idToDelete);
+    delete roster.characters[idToDelete];
+    roster.order.splice(idx, 1);
+    const nextId = roster.order[Math.max(0, idx-1)];
+    switchActiveCharacter(nextId);
+  }
+
+  /* ----------------------------------------------------------
+     2. DERIVED CALCULATIONS
+     ---------------------------------------------------------- */
+  function statMod(score){ return Math.floor((score-10)/2); }
+
+  function computeFeatAllowance(level){
+    const odd = Math.ceil(level/2);
+    const bonusLevels = [2,5,8,11,14,17,20];
+    const bonus = bonusLevels.filter(l => l <= level).length;
+    return { odd, bonus, total: odd+bonus };
+  }
+
+  function computeMaxFlexSlots(level){
+    if(level >= 10) return 3;
+    if(level >= 6) return 2;
+    return 1;
+  }
+
+  function computeMaxStamina(bab, conMod){
+    return Math.max(0, bab + conMod);
+  }
+
+  // Whether the character has the Combat Stamina feat is now derived
+  // directly from the feat list rather than a separate toggle, so a
+  // single source of truth drives both the feat card badge and the
+  // Stamina Pool tracker.
+  function hasCombatStamina(){
+    return state.knownFeats.includes('combat_stamina');
+  }
+
+  function getKnownFeatIdSet(){
+    // Manually known feats + always-injected EITR baseline feats,
+    // used for BACKGROUND prerequisite validation only.
+    const set = new Set(state.knownFeats);
+    BASELINE_FEAT_IDS.forEach(id => set.add(id));
+    return set;
+  }
+
+  /* ----------------------------------------------------------
+     3. TIER 1 — STATIC GATE CHECK
+     ---------------------------------------------------------- */
+  function checkStaticReqs(feat){
+    // BAB
+    if(state.bab < feat.reqBAB) return false;
+
+    // Stats — Int is force-set to 13 for gating purposes while
+    // the character holds at least 1 Brawler level (this app is
+    // single-class Brawler, so level >= 1 always qualifies).
+    const effectiveStats = Object.assign({}, state.stats, { int: Math.max(state.stats.int, 13) });
+    for(const key of Object.keys(feat.reqStats)){
+      if(effectiveStats[key] < feat.reqStats[key]) return false;
+    }
+
+    // Weapon group
+    if(feat.reqWeaponGroup && !state.weaponGroups.includes(feat.reqWeaponGroup)) return false;
+
+    // Skill ranks
+    for(const skill of Object.keys(feat.reqSkills)){
+      const have = state.skills[skill] || 0;
+      if(have < feat.reqSkills[skill]) return false;
+    }
+
+    return true;
+  }
+
+  function directMissingPrereqs(feat, knownSet){
+    return feat.reqFeats.filter(reqId => {
+      if(reqId === WEAPON_FINESSE_ID) return false; // always bypassed
+      return !knownSet.has(reqId);
+    });
+  }
+
+  /* ----------------------------------------------------------
+     4. TIER 2/3 — RECURSIVE DEPENDENCY ENGINE (max depth 3)
+
+     resolveChain() walks the full reqFeats tree of a target feat
+     (skipping Weapon Finesse entirely, per ruleset) and builds an
+     ORDERED list of every currently-unknown ancestor feat that must
+     be flexed first, followed by the target feat itself — e.g. a
+     feat that directly requires two other unknown feats, one of
+     which itself requires the other, still collapses to the single
+     ordered sequence ["dodge","mobility","spring_attack"].
+
+     The absolute ceiling is 3 total feats in that sequence (the
+     "max depth 3" rule) — if satisfying the tree would need more
+     than 3 total flexes, or any node along the way fails its own
+     static (BAB/stat/skill/weapon group) requirements, resolution
+     fails outright and the feat is locked.
+     ---------------------------------------------------------- */
+  function resolveChain(featId, knownSet, collected, guard){
+    guard = guard || { steps:0 };
+    guard.steps++;
+    if(guard.steps > 40) return false; // runaway-recursion safety valve
+
+    const feat = FEATS_BY_ID[featId];
+    if(!feat) return false;
+    if(!checkStaticReqs(feat)) return false;
+
+    // Already satisfied — nothing to add to the chain.
+    if(BASELINE_FEAT_IDS.includes(featId) || knownSet.has(featId)) return true;
+    if(collected.includes(featId)) return true; // already scheduled earlier in the walk
+
+    // Resolve every direct prerequisite first (dependency-first ordering).
+    for(const req of feat.reqFeats){
+      if(req === WEAPON_FINESSE_ID) continue; // always bypassed
+      const ok = resolveChain(req, knownSet, collected, guard);
+      if(!ok) return false;
+    }
+
+    if(collected.length >= 3) return false; // would exceed the 3-slot ceiling
+    collected.push(featId);
+    return true;
+  }
+
+  /* Returns:
+       { status: 'baseline'|'legal'|'flex2'|'flex3'|'locked',
+         chain: [featId,...] ,     // ordered slot sequence, ends with the feat itself
+         reason: string }          // human-readable lock reason
+  */
+  function evaluateFeat(featId, maxSlots, knownSet){
+    const feat = FEATS_BY_ID[featId];
+    if(!feat) return { status:'locked', chain:[], reason:'Unknown feat id.' };
+
+    if(BASELINE_FEAT_IDS.includes(featId)){
+      return { status:'baseline', chain:[featId], reason:'' };
+    }
+
+    // Character already permanently possesses this feat (entered under
+    // "Feats The Character Has") — it's not a flex use at all, so it
+    // short-circuits ahead of the static gate: however the character
+    // came to qualify for it, they already did.
+    if(state.knownFeats.includes(featId)){
+      return { status:'known', chain:[featId], reason:'' };
+    }
+
+    // Tier 1 gate — hard lock regardless of everything else
+    if(!checkStaticReqs(feat)){
+      return { status:'locked', chain:[], reason:'Fails BAB, attribute, weapon group, or skill requirement.' };
+    }
+
+    const collected = [];
+    const resolved = resolveChain(featId, knownSet, collected);
+
+    if(!resolved){
+      return { status:'locked', chain:[], reason:'Prerequisite tree needs more than 3 total flexes, or a link in the chain fails its own BAB/attribute/skill/weapon-group requirement.' };
+    }
+
+    const chainLen = collected.length;
+
+    if(chainLen <= 1){
+      return { status:'legal', chain:[featId], reason:'' };
+    }
+    if(chainLen === 2){
+      if(maxSlots >= 2) return { status:'flex2', chain:collected, reason:'' };
+      return { status:'locked', chain:collected, reason:'Needs a 2-slot chain ('+collected.map(id=>FEATS_BY_ID[id].name).join(' ➔ ')+') but only '+maxSlots+' flex slot available at this level.' };
+    }
+    // chainLen === 3
+    if(maxSlots >= 3) return { status:'flex3', chain:collected, reason:'' };
+    return { status:'locked', chain:collected, reason:'Needs a 3-slot chain ('+collected.map(id=>FEATS_BY_ID[id].name).join(' ➔ ')+') but only '+maxSlots+' flex slot(s) available at this level.' };
+  }
+
+  /* ----------------------------------------------------------
+     5. RENDER — SIDEBAR
+     ---------------------------------------------------------- */
+  function renderWeaponGroups(){
+    const wrap = document.getElementById('weapon-groups');
+    wrap.innerHTML = '';
+    WEAPON_GROUPS.forEach(group => {
+      const id = 'wg-' + group.replace(/\s+/g,'-').toLowerCase();
+      const active = state.weaponGroups.includes(group);
+      const label = document.createElement('label');
+      label.className = 'chip-check' + (active ? ' active' : '');
+      label.innerHTML = '<input type="checkbox" id="'+id+'" '+(active?'checked':'')+'> '+group;
+      label.querySelector('input').addEventListener('change', (e) => {
+        if(e.target.checked){
+          if(!state.weaponGroups.includes(group)) state.weaponGroups.push(group);
+        } else {
+          state.weaponGroups = state.weaponGroups.filter(g => g !== group);
+        }
+        persistAndRender();
+      });
+      wrap.appendChild(label);
+    });
+  }
+
+  function renderFlexGauge(){
+    const maxSlots = computeMaxFlexSlots(state.level);
+    document.getElementById('fg-count').textContent = maxSlots;
+    document.getElementById('fg-plural').textContent = maxSlots === 1 ? '' : 's';
+    const linksWrap = document.getElementById('fg-links');
+    linksWrap.innerHTML = '';
+    for(let i=1;i<=3;i++){
+      const link = document.createElement('div');
+      link.className = 'link' + (i<=maxSlots ? ' filled' : '');
+      linksWrap.appendChild(link);
+      if(i<3){
+        const wire = document.createElement('div');
+        wire.className = 'link-wire' + (i<maxSlots ? ' filled' : '');
+        linksWrap.appendChild(wire);
+      }
+    }
+  }
+
+  function renderAllowance(){
+    const a = computeFeatAllowance(state.level);
+    document.getElementById('al-odd').textContent = a.odd;
+    document.getElementById('al-bonus').textContent = a.bonus;
+    document.getElementById('al-total').textContent = a.total;
+    const knownCount = state.knownFeats.length + state.otherFeats.length;
+    document.getElementById('al-known').textContent = knownCount;
+    const totalRow = document.querySelector('.allowance-total');
+    totalRow.classList.remove('over','ok');
+    totalRow.classList.add(knownCount > a.total ? 'over' : 'ok');
+  }
+
+  function renderStaminaBadge(){
+    const badge = document.getElementById('t-hasStamina-badge');
+    const has = hasCombatStamina();
+    badge.textContent = has ? '✓ TAKEN' : '— NOT TAKEN';
+    badge.classList.toggle('off', !has);
+  }
+
+  function renderStamina(){
+    renderStaminaBadge();
+    const staminaModVisible = state.useStaminaRules;
+    document.getElementById('stamina-mod').style.display = staminaModVisible ? '' : 'none';
+    if(!staminaModVisible) return;
+    const max = computeMaxStamina(state.bab, statMod(state.stats.con));
+    const current = Math.max(0, max - state.staminaSpent);
+    document.getElementById('stamina-readout').textContent = current + ' / ' + max;
+    document.getElementById('stamina-fill').style.width = (max === 0 ? 0 : (current/max*100)) + '%';
+    document.getElementById('stamina-warn').style.display = hasCombatStamina() ? 'none' : '';
+  }
+
+  function renderKnownChips(){
+    const wrap = document.getElementById('known-chips');
+    wrap.innerHTML = '';
+    state.knownFeats.forEach(id => {
+      const feat = FEATS_BY_ID[id];
+      if(!feat) return;
+      const chip = document.createElement('span');
+      chip.className = 'known-chip';
+      chip.innerHTML = '<span>'+feat.name+'</span>';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = '✕';
+      btn.addEventListener('click', () => {
+        state.knownFeats = state.knownFeats.filter(f => f !== id);
+        persistAndRender();
+      });
+      chip.appendChild(btn);
+      wrap.appendChild(chip);
+    });
+  }
+
+  function renderOtherChips(){
+    const wrap = document.getElementById('other-chips');
+    wrap.innerHTML = '';
+    state.otherFeats.forEach((name, idx) => {
+      const chip = document.createElement('span');
+      chip.className = 'known-chip other-chip';
+      chip.innerHTML = '<span>'+name+'</span>';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = '✕';
+      btn.addEventListener('click', () => {
+        state.otherFeats = state.otherFeats.filter((n,i) => i !== idx);
+        persistAndRender();
+      });
+      chip.appendChild(btn);
+      wrap.appendChild(chip);
+    });
+  }
+
+  function initOtherFeatInput(){
+    const input = document.getElementById('other-feat-input');
+    const btn = document.getElementById('other-feat-add');
+    function commit(){
+      const val = input.value.trim();
+      if(!val) return;
+      if(state.otherFeats.some(n => n.toLowerCase() === val.toLowerCase())) { input.value=''; return; }
+      state.otherFeats.push(val);
+      input.value = '';
+      persistAndRender();
+    }
+    btn.addEventListener('click', commit);
+    input.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){ e.preventDefault(); commit(); }
+    });
+  }
+
+  function renderKnownSearch(){
+    const input = document.getElementById('known-search-input');
+    const dropdown = document.getElementById('known-dropdown');
+    input.addEventListener('input', () => {
+      const q = input.value.trim().toLowerCase();
+      if(!q){ dropdown.style.display = 'none'; dropdown.innerHTML=''; return; }
+      const results = FEATS.filter(f =>
+        !BASELINE_FEAT_IDS.includes(f.id) &&
+        !state.knownFeats.includes(f.id) &&
+        f.name.toLowerCase().includes(q)
+      ).slice(0, 8);
+      if(results.length === 0){ dropdown.style.display = 'none'; dropdown.innerHTML=''; return; }
+      dropdown.innerHTML = '';
+      results.forEach(f => {
+        const item = document.createElement('div');
+        item.className = 'known-dropdown-item';
+        item.innerHTML = f.name + '<div class="kdi-meta">BAB ' + f.reqBAB + (f.reqWeaponGroup ? ' · '+f.reqWeaponGroup : '') + '</div>';
+        item.addEventListener('click', () => {
+          state.knownFeats.push(f.id);
+          input.value = '';
+          dropdown.style.display = 'none';
+          dropdown.innerHTML = '';
+          persistAndRender();
+        });
+        dropdown.appendChild(item);
+      });
+      dropdown.style.display = '';
+    });
+    document.addEventListener('click', (e) => {
+      if(!e.target.closest('.known-search')){
+        dropdown.style.display = 'none';
+      }
+    });
+  }
+
+  /* ----------------------------------------------------------
+     6. RENDER — TAG RIBBON
+     ---------------------------------------------------------- */
+  function renderTagRibbon(){
+    const ribbon = document.getElementById('tag-ribbon');
+    ribbon.innerHTML = '';
+
+    function addTagButton(tag, extraClass){
+      const btn = document.createElement('button');
+      btn.className = 'tag-btn' + (extraClass ? ' '+extraClass : '') + (state.activeTag === tag ? ' active' : '');
+      btn.textContent = tag === KNOWN_TAG ? '✓ Known' : tag;
+      btn.addEventListener('click', () => {
+        state.activeTag = tag;
+        persistAndRender();
+      });
+      ribbon.appendChild(btn);
+    }
+
+    addTagButton('All');
+    addTagButton(KNOWN_TAG, 'tag-known');
+
+    const divider = document.createElement('div');
+    divider.className = 'ribbon-divider';
+    ribbon.appendChild(divider);
+
+    ALL_TAGS.forEach(tag => addTagButton(tag));
+  }
+
+  /* ----------------------------------------------------------
+     7. RENDER — FEAT GRID
+     ---------------------------------------------------------- */
+  const STATUS_RANK = { known:0, legal:1, flex2:2, flex3:3, baseline:4, locked:5 };
+  const STATUS_LABEL = { known:'Known · Permanent', legal:'1-Slot · Legal', flex2:'2-Slot Combo', flex3:'3-Slot Combo', baseline:'Baseline · Always Known', locked:'Locked' };
+  const STATUS_BADGE_CLASS = { known:'b-known', legal:'b-legal', flex2:'b-flex2', flex3:'b-flex3', baseline:'b-baseline', locked:'b-locked' };
+
+  function buildComboNote(evalResult, feat){
+    if(evalResult.status !== 'flex2' && evalResult.status !== 'flex3') return '';
+    const names = evalResult.chain.map(id => (FEATS_BY_ID[id]||{name:id}).name);
+    const slotWord = evalResult.status === 'flex2' ? '2-Slot Combo' : '3-Slot Combo';
+    const cssClass = evalResult.status === 'flex2' ? 'c2' : 'c3';
+    const chainNodes = names.map((n,i) => {
+      const arrow = i < names.length-1 ? '<span class="chain-arrow">➔</span>' : '';
+      return '<span class="chain-node">'+n+'</span>'+arrow;
+    }).join('');
+    return '<div class="combo-note '+cssClass+'">'+slotWord+': Flex '+names.slice(0,-1).join(' ➔ ')+' ➔ This Feat'+
+      '<div class="chain-vis">'+chainNodes+'</div></div>';
+  }
+
+  function renderFeatGrid(){
+    const grid = document.getElementById('feat-grid');
+    const maxSlots = computeMaxFlexSlots(state.level);
+    const knownSet = getKnownFeatIdSet();
+
+    // Evaluate every feat up front — the "Known" meta-filter needs each
+    // feat's resolved status (not just its static tags array) to decide
+    // membership, so tag filtering happens after evaluation, not before.
+    const evaluated = FEATS.map(feat => {
+      const evalResult = evaluateFeat(feat.id, maxSlots, knownSet);
+      return {
+        feat, evalResult,
+        isFav: state.favoritedFeats.includes(feat.id),
+        isDismissed: state.dismissedFeats.includes(feat.id)
+      };
+    });
+
+    let tagFiltered = evaluated.filter(e => {
+      if(state.activeTag === 'All') return true;
+      if(state.activeTag === KNOWN_TAG) return e.evalResult.status === 'known' || e.evalResult.status === 'baseline';
+      return e.feat.tags.includes(state.activeTag);
+    });
+
+    let filtered = tagFiltered.filter(e => state.showLocked || e.evalResult.status !== 'locked');
+
+    // Favorites always float to the very top regardless of status rank.
+    // Within a status rank, dismissed feats sink to the bottom of that
+    // same rank (not the bottom of the whole list) — a 2-slot combo
+    // you've dismissed still reads below other 2-slot combos, but still
+    // above every 3-slot combo, locked feat, etc.
+    filtered.sort((a,b) => {
+      if(a.isFav !== b.isFav) return a.isFav ? -1 : 1;
+      const ra = STATUS_RANK[a.evalResult.status], rb = STATUS_RANK[b.evalResult.status];
+      if(ra !== rb) return ra - rb;
+      if(a.isDismissed !== b.isDismissed) return a.isDismissed ? 1 : -1;
+      return a.feat.name.localeCompare(b.feat.name);
+    });
+
+    document.getElementById('result-count').textContent = filtered.length + ' feat' + (filtered.length===1?'':'s') +
+      ' · showing "' + (state.activeTag === KNOWN_TAG ? '✓ Known' : state.activeTag) + '"';
+
+    grid.innerHTML = '';
+    if(filtered.length === 0){
+      grid.innerHTML = '<div class="empty-state">No feats match this filter.</div>';
+      return;
+    }
+
+    filtered.forEach(({feat, evalResult, isFav, isDismissed}) => {
+      const card = document.createElement('div');
+      card.className = 'card status-'+evalResult.status + (isFav ? ' is-fav' : '') + (isDismissed ? ' is-dismissed' : '');
+
+      const badges = ['<span class="badge '+STATUS_BADGE_CLASS[evalResult.status]+'">'+STATUS_LABEL[evalResult.status]+'</span>'];
+      if(isDismissed) badges.push('<span class="badge">↓ Deprioritized</span>');
+      if(feat.reqWeaponGroup) badges.push('<span class="badge">'+feat.reqWeaponGroup+'</span>');
+      badges.push('<span class="badge">BAB '+feat.reqBAB+'+</span>');
+
+      const reqBits = [];
+      const statParts = Object.entries(feat.reqStats).filter(([k,v]) => v>0).map(([k,v]) => k.toUpperCase()+' '+v);
+      if(statParts.length) reqBits.push('<b>Stats</b> '+statParts.join(', '));
+      const skillParts = Object.entries(feat.reqSkills).map(([k,v]) => k+' '+v+'r');
+      if(skillParts.length) reqBits.push('<b>Skills</b> '+skillParts.join(', '));
+      if(feat.reqFeats.length) reqBits.push('<b>Feats</b> '+feat.reqFeats.map(id => (FEATS_BY_ID[id]||{name:id}).name).join(', '));
+
+      const tagPills = feat.tags.map(t => '<span class="tag-pill">'+t+'</span>').join('');
+
+      let trickBlock = '';
+      if(state.useStaminaRules && feat.hasStaminaTrick){
+        trickBlock = '<div class="trick-block"><b>Combat Trick</b>'+feat.staminaTrickText+'</div>';
+      }
+
+      let lockReason = '';
+      if(evalResult.status === 'locked' && evalResult.reason){
+        lockReason = '<div class="lock-reason">'+evalResult.reason+'</div>';
+      }
+
+      card.innerHTML =
+        '<div class="card-head">'+
+          '<div class="card-title">'+feat.name+'</div>'+
+          '<div class="card-head-actions">'+
+            '<button class="fav-btn'+(isFav?' active':'')+'" type="button" data-fav="'+feat.id+'" title="Toggle favorite">'+(isFav?'★':'☆')+'</button>'+
+            '<button class="dismiss-btn'+(isDismissed?' active':'')+'" type="button" data-dismiss="'+feat.id+'" title="Deprioritize — sink to the bottom of its rank">⊖</button>'+
+          '</div>'+
+        '</div>'+
+        '<div class="badge-row">'+badges.join('')+'</div>'+
+        '<div class="card-summary">'+feat.summary+'</div>'+
+        (reqBits.length ? '<div class="req-line">'+reqBits.join('<br>')+'</div>' : '')+
+        '<div class="tag-pills">'+tagPills+'</div>'+
+        buildComboNote(evalResult, feat)+
+        lockReason+
+        trickBlock;
+
+      grid.appendChild(card);
+    });
+
+    grid.querySelectorAll('[data-fav]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-fav');
+        if(state.favoritedFeats.includes(id)){
+          state.favoritedFeats = state.favoritedFeats.filter(f => f !== id);
+        } else {
+          state.favoritedFeats.push(id);
+        }
+        persistAndRender();
+      });
+    });
+
+    grid.querySelectorAll('[data-dismiss]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('data-dismiss');
+        if(state.dismissedFeats.includes(id)){
+          state.dismissedFeats = state.dismissedFeats.filter(f => f !== id);
+        } else {
+          state.dismissedFeats.push(id);
+        }
+        persistAndRender();
+      });
+    });
+  }
+
+  /* ----------------------------------------------------------
+     8. MASTER RENDER
+     ---------------------------------------------------------- */
+  function syncInputsFromState(){
+    document.getElementById('f-name').value = state.name;
+    document.getElementById('f-level').value = state.level;
+    document.getElementById('f-bab').value = state.bab;
+    document.getElementById('s-str').value = state.stats.str;
+    document.getElementById('s-dex').value = state.stats.dex;
+    document.getElementById('s-con').value = state.stats.con;
+    document.getElementById('s-int').value = state.stats.int;
+    document.getElementById('s-wis').value = state.stats.wis;
+    document.getElementById('s-cha').value = state.stats.cha;
+    document.getElementById('sk-bluff').value = state.skills.bluff;
+    document.getElementById('sk-acrobatics').value = state.skills.acrobatics;
+    document.getElementById('sk-sleight').value = state.skills.sleight_of_hand;
+    document.getElementById('t-useStamina').checked = state.useStaminaRules;
+    document.getElementById('show-locked').checked = state.showLocked;
+  }
+
+  function renderRosterBar(){
+    const select = document.getElementById('roster-select');
+    select.innerHTML = '';
+    roster.order.forEach(id => {
+      const c = roster.characters[id];
+      if(!c) return;
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = c.name && c.name.trim() ? c.name : 'Unnamed Brawler';
+      if(id === roster.activeId) opt.selected = true;
+      select.appendChild(opt);
+    });
+  }
+
+  function render(){
+    renderRosterBar();
+    renderWeaponGroups();
+    renderFlexGauge();
+    renderAllowance();
+    renderStamina();
+    renderKnownChips();
+    renderOtherChips();
+    renderTagRibbon();
+    renderFeatGrid();
+  }
+
+  function persistAndRender(){
+    saveRoster();
+    render();
+  }
+
+  /* ----------------------------------------------------------
+     9. EVENT WIRING
+     ---------------------------------------------------------- */
+  function bindInput(id, path, parser){
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => {
+      const val = parser ? parser(el.value) : el.value;
+      const keys = path.split('.');
+      let obj = state;
+      for(let i=0;i<keys.length-1;i++) obj = obj[keys[i]];
+      obj[keys[keys.length-1]] = val;
+      persistAndRender();
+    });
+  }
+
+  function initEvents(){
+    document.getElementById('roster-select').addEventListener('change', (e) => {
+      switchActiveCharacter(e.target.value);
+    });
+    document.getElementById('roster-new').addEventListener('click', createNewCharacter);
+    document.getElementById('roster-duplicate').addEventListener('click', duplicateActiveCharacter);
+    document.getElementById('roster-delete').addEventListener('click', deleteActiveCharacter);
+
+    bindInput('f-name','name');
+    bindInput('f-level','level', v => Math.max(1, Math.min(20, parseInt(v)||1)));
+    bindInput('f-bab','bab', v => Math.max(0, parseInt(v)||0));
+    bindInput('s-str','stats.str', v => parseInt(v)||0);
+    bindInput('s-dex','stats.dex', v => parseInt(v)||0);
+    bindInput('s-con','stats.con', v => parseInt(v)||0);
+    bindInput('s-int','stats.int', v => parseInt(v)||0);
+    bindInput('s-wis','stats.wis', v => parseInt(v)||0);
+    bindInput('s-cha','stats.cha', v => parseInt(v)||0);
+    bindInput('sk-bluff','skills.bluff', v => parseInt(v)||0);
+    bindInput('sk-acrobatics','skills.acrobatics', v => parseInt(v)||0);
+    bindInput('sk-sleight','skills.sleight_of_hand', v => parseInt(v)||0);
+
+    document.getElementById('t-useStamina').addEventListener('change', (e) => {
+      state.useStaminaRules = e.target.checked;
+      persistAndRender();
+    });
+    document.getElementById('show-locked').addEventListener('change', (e) => {
+      state.showLocked = e.target.checked;
+      persistAndRender();
+    });
+
+    document.getElementById('stamina-minus').addEventListener('click', () => {
+      if(!hasCombatStamina()) return;
+      const max = computeMaxStamina(state.bab, statMod(state.stats.con));
+      state.staminaSpent = Math.min(max, state.staminaSpent+1);
+      persistAndRender();
+    });
+    document.getElementById('stamina-reset').addEventListener('click', () => {
+      state.staminaSpent = 0;
+      persistAndRender();
+    });
+
+    renderKnownSearch();
+    initOtherFeatInput();
+  }
+
+  /* ----------------------------------------------------------
+     10. BOOT
+     ---------------------------------------------------------- */
+  syncInputsFromState();
+  initEvents();
+  render();
+
+})();
+</script>
+</body>
+</html>
