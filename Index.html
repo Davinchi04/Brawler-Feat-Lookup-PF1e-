@@ -524,6 +524,21 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
           <input id="f-bab" type="number" min="0" max="20" value="1">
         </div>
       </div>
+      <div class="field" style="margin-top:8px;">
+        <label for="f-race">Race</label>
+        <select id="f-race">
+          <option value="">— Unspecified —</option>
+          <option value="Human">Human</option>
+          <option value="Dwarf">Dwarf</option>
+          <option value="Elf">Elf</option>
+          <option value="Gnome">Gnome</option>
+          <option value="Half-Elf">Half-Elf</option>
+          <option value="Half-Orc">Half-Orc</option>
+          <option value="Halfling">Halfling</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="baseline-note" id="race-note" style="display:none;">Human's 1st-level Bonus Feat racial trait adds +1 to Total earned in the Permanent Feat Allowance below.</div>
     </div>
 
     <div class="mod">
@@ -540,6 +555,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
       <div class="allowance-box">
         <div class="allowance-row"><span>Leveling feats (odd levels)</span><span id="al-odd">1</span></div>
         <div class="allowance-row"><span>Brawler bonus combat feats</span><span id="al-bonus">0</span></div>
+        <div class="allowance-row" id="al-race-row" style="display:none;"><span>Human bonus feat</span><span id="al-race">0</span></div>
         <div class="allowance-row allowance-total"><span>Total earned</span><span id="al-total">1</span></div>
         <div class="allowance-row"><span>Manually known (entered)</span><span id="al-known">0</span></div>
       </div>
@@ -684,7 +700,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
      ---------------------------------------------------------- */
   function defaultState(){
     return {
-      name:"", level:1, bab:1,
+      name:"", level:1, bab:1, race:"",
       stats:{str:10,dex:10,con:10,int:10,wis:10,cha:10},
       skills:{bluff:0, acrobatics:0, sleight_of_hand:0, ride:0},
       weaponGroups:[],
@@ -802,11 +818,15 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
      ---------------------------------------------------------- */
   function statMod(score){ return Math.floor((score-10)/2); }
 
-  function computeFeatAllowance(level){
+  function computeFeatAllowance(level, race){
     const odd = Math.ceil(level/2);
     const bonusLevels = [2,5,8,11,14,17,20];
     const bonus = bonusLevels.filter(l => l <= level).length;
-    return { odd, bonus, total: odd+bonus };
+    // Human's 1st-level "Bonus Feat" racial trait — not an EITR change,
+    // just standard PF1e race rules — adds one extra feat on top of the
+    // normal leveling/Brawler bonus allotment.
+    const race_bonus = race === 'Human' ? 1 : 0;
+    return { odd, bonus, race_bonus, total: odd+bonus+race_bonus };
   }
 
   function computeMaxFlexSlots(level){
@@ -999,10 +1019,13 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
   }
 
   function renderAllowance(){
-    const a = computeFeatAllowance(state.level);
+    const a = computeFeatAllowance(state.level, state.race);
     document.getElementById('al-odd').textContent = a.odd;
     document.getElementById('al-bonus').textContent = a.bonus;
+    document.getElementById('al-race-row').style.display = a.race_bonus ? '' : 'none';
+    document.getElementById('al-race').textContent = a.race_bonus;
     document.getElementById('al-total').textContent = a.total;
+    document.getElementById('race-note').style.display = a.race_bonus ? '' : 'none';
     const knownCount = state.knownFeats.length + state.otherFeats.length;
     document.getElementById('al-known').textContent = knownCount;
     const totalRow = document.querySelector('.allowance-total');
@@ -1297,6 +1320,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
     document.getElementById('f-name').value = state.name;
     document.getElementById('f-level').value = state.level;
     document.getElementById('f-bab').value = state.bab;
+    document.getElementById('f-race').value = state.race;
     document.getElementById('s-str').value = state.stats.str;
     document.getElementById('s-dex').value = state.stats.dex;
     document.getElementById('s-con').value = state.stats.con;
@@ -1368,6 +1392,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
     bindInput('f-name','name');
     bindInput('f-level','level', v => Math.max(1, Math.min(20, parseInt(v)||1)));
     bindInput('f-bab','bab', v => Math.max(0, parseInt(v)||0));
+    bindInput('f-race','race');
     bindInput('s-str','stats.str', v => parseInt(v)||0);
     bindInput('s-dex','stats.dex', v => parseInt(v)||0);
     bindInput('s-con','stats.con', v => parseInt(v)||0);
