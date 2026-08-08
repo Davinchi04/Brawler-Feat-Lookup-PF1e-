@@ -115,8 +115,16 @@ a{color:var(--brass-soft);}
 .mod-title{
   font-size:11px; color:var(--muted); letter-spacing:.16em; margin-bottom:9px;
   display:flex; align-items:center; gap:8px;
+  cursor:pointer; user-select:none;
 }
+.mod-title:hover{color:var(--text);}
 .mod-title::after{content:""; flex:1; height:1px; background:var(--border-soft);}
+.mod-title .mod-chevron{
+  order:1; flex-shrink:0; font-size:10px; color:var(--muted-2);
+  transition:transform .15s ease;
+}
+.mod.collapsed .mod-title .mod-chevron{transform:rotate(-90deg);}
+.mod.collapsed > *:not(.mod-title){display:none;}
 
 .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
 .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
@@ -691,6 +699,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
 
   const ROSTER_KEY = "flexLedger.roster.v1";
   const LEGACY_SINGLE_KEY = "flexLedger.character.v1"; // pre-roster save, migrated on first load
+  const COLLAPSED_MODS_KEY = "flexLedger.collapsedMods.v1"; // sidebar collapse state — a UI preference, not per-character
 
   /* ----------------------------------------------------------
      1. STATE — now one character among many in a roster.
@@ -1381,6 +1390,39 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
     });
   }
 
+  // Sidebar modules collapse independently of any character — it's a
+  // display preference (saving screen space), so it's stored under its
+  // own localStorage key rather than inside roster/character state.
+  function loadCollapsedMods(){
+    try{
+      const raw = localStorage.getItem(COLLAPSED_MODS_KEY);
+      const arr = raw ? JSON.parse(raw) : [];
+      return new Set(Array.isArray(arr) ? arr : []);
+    }catch(e){ return new Set(); }
+  }
+
+  function initCollapsibleMods(){
+    const collapsed = loadCollapsedMods();
+    document.querySelectorAll('.sidebar > .mod').forEach(mod => {
+      const title = mod.querySelector('.mod-title');
+      if(!title) return;
+      const key = title.textContent.trim();
+      const chevron = document.createElement('span');
+      chevron.className = 'mod-chevron';
+      chevron.setAttribute('aria-hidden', 'true');
+      chevron.textContent = '▾';
+      title.appendChild(chevron);
+      if(collapsed.has(key)) mod.classList.add('collapsed');
+      title.addEventListener('click', () => {
+        mod.classList.toggle('collapsed');
+        const nowCollapsed = loadCollapsedMods();
+        if(mod.classList.contains('collapsed')) nowCollapsed.add(key);
+        else nowCollapsed.delete(key);
+        localStorage.setItem(COLLAPSED_MODS_KEY, JSON.stringify([...nowCollapsed]));
+      });
+    });
+  }
+
   function initEvents(){
     document.getElementById('roster-select').addEventListener('change', (e) => {
       switchActiveCharacter(e.target.value);
@@ -1433,6 +1475,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
      ---------------------------------------------------------- */
   syncInputsFromState();
   initEvents();
+  initCollapsibleMods();
   render();
 
 })();
