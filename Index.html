@@ -451,6 +451,9 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
     <button id="roster-new" type="button" title="Create a new character">+ New</button>
     <button id="roster-duplicate" type="button" title="Duplicate this character">⧉ Duplicate</button>
     <button id="roster-delete" type="button" class="danger" title="Delete this character">✕ Delete</button>
+    <button id="roster-export" type="button" title="Export this character to a JSON file and copy it to your clipboard">⇩ Export</button>
+    <button id="roster-import" type="button" title="Import a character from a JSON file">⇧ Import</button>
+    <input type="file" id="roster-import-file" accept="application/json,.json" style="display:none;">
   </div>
 </div>
 
@@ -763,6 +766,79 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
     roster.order.splice(idx, 1);
     const nextId = roster.order[Math.max(0, idx-1)];
     switchActiveCharacter(nextId);
+  }
+
+  function characterFileName(c){
+    const safe = (c.name || "Unnamed Brawler").trim().replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '') || "character";
+    return "flexledger-" + safe + ".json";
+  }
+
+  function legacyCopyFallback(text){
+    try{
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }catch(e){
+      console.warn('Clipboard copy failed; the exported file was still downloaded.', e);
+    }
+  }
+
+  function copyTextToClipboard(text){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).catch(() => legacyCopyFallback(text));
+    } else {
+      legacyCopyFallback(text);
+    }
+  }
+
+  // Exports exactly one character at a time — both as a downloaded .json
+  // file and (best-effort) copied to the clipboard, so it can be pasted
+  // elsewhere or handed to another Flex Ledger instance's Import button.
+  function exportActiveCharacter(){
+    const payload = {
+      flexLedgerExport: 1,
+      exportedAt: new Date().toISOString(),
+      character: state
+    };
+    const json = JSON.stringify(payload, null, 2);
+
+    const blob = new Blob([json], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = characterFileName(state);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    copyTextToClipboard(json);
+  }
+
+  function importCharacterFromFile(file){
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const parsed = JSON.parse(reader.result);
+        const raw = (parsed && typeof parsed === 'object' && parsed.character) ? parsed.character : parsed;
+        if(!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('Not a character export.');
+        const imported = normalizeCharacterState(raw);
+        const id = makeCharacterId();
+        roster.characters[id] = imported;
+        roster.order.push(id);
+        switchActiveCharacter(id);
+      }catch(e){
+        alert('Could not import that file — it doesn\'t look like a valid Flex Ledger character export.');
+        console.warn('Import failed', e);
+      }
+    };
+    reader.readAsText(file);
   }
 
   /* ----------------------------------------------------------
@@ -1373,6 +1449,15 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
     document.getElementById('roster-new').addEventListener('click', createNewCharacter);
     document.getElementById('roster-duplicate').addEventListener('click', duplicateActiveCharacter);
     document.getElementById('roster-delete').addEventListener('click', deleteActiveCharacter);
+    document.getElementById('roster-export').addEventListener('click', exportActiveCharacter);
+    document.getElementById('roster-import').addEventListener('click', () => {
+      document.getElementById('roster-import-file').click();
+    });
+    document.getElementById('roster-import-file').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if(file) importCharacterFromFile(file);
+      e.target.value = '';
+    });
 
     bindInput('f-name','name');
     bindInput('f-level','level', v => Math.max(1, Math.min(20, parseInt(v)||1)));
