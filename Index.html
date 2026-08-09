@@ -1251,9 +1251,17 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
     // same rank (not the bottom of the whole list) — a 2-slot combo
     // you've dismissed still reads below other 2-slot combos, but still
     // above every 3-slot combo, locked feat, etc.
+    // Under the Known-tag view, baseline (always-known) feats like Unarmed
+    // Combatant should sit alongside manually-known ones, not sink to their
+    // normal rank-4 spot near the bottom — this view is specifically "what
+    // does this character know," and baseline feats qualify just as much.
+    const rankOf = e => (state.activeTag === KNOWN_TAG && e.evalResult.status === 'baseline')
+      ? STATUS_RANK.known
+      : STATUS_RANK[e.evalResult.status];
+
     filtered.sort((a,b) => {
       if(a.isFav !== b.isFav) return a.isFav ? -1 : 1;
-      const ra = STATUS_RANK[a.evalResult.status], rb = STATUS_RANK[b.evalResult.status];
+      const ra = rankOf(a), rb = rankOf(b);
       if(ra !== rb) return ra - rb;
       if(a.isDismissed !== b.isDismissed) return a.isDismissed ? 1 : -1;
       return a.feat.name.localeCompare(b.feat.name);
