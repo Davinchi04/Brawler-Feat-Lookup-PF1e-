@@ -325,7 +325,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
 {"id":"combat_stamina","name":"Combat Stamina","isCombatFeat":true,"reqBAB":1,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Stamina"],"summary":"Pathfinder Unchained feat — gain a pool of stamina points equal to BAB + Con modifier, spendable to fuel combat tricks on qualifying feats. Spending stamina is never an action, but you can't do it while unconscious, fatigued, or exhausted; you can use as many tricks on one action as you can afford, but never the same trick twice within its own scope. Dropping to 0 stamina leaves you fatigued until you have 1 or more points again. Add this to 'Feats The Character Has' to activate the Stamina Pool tracker.","hasStaminaTrick":true,"staminaTrickText":"Base trick (works with any qualifying attack, no other feat needed): after making an attack roll with a weapon, unarmed strike, or natural attack you're proficient with, but before the result is revealed, spend up to 5 stamina points to gain a competence bonus on that roll equal to the points spent — the points are lost even if the attack misses. Out of combat, you regain 1 stamina point for each uninterrupted minute you spend resting (no fighting, no Str/Dex/Con-based checks, and no more than one move or standard action that round)."},
 {"id":"unarmed_combatant","name":"Unarmed Combatant","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"EITR's consolidated replacement for Improved Unarmed Strike and Improved Grapple. You're considered armed while unarmed (no AoO for attacking unarmed), your unarmed strikes deal 1d6 (1d4 if Small) lethal or nonlethal damage at will, you don't provoke an AoO when grappling, you get a +2 bonus on grapple checks, and you get a +2 bonus to your own CMD whenever an opponent tries to grapple you. Brawlers gain this automatically as an EITR baseline feat.","hasStaminaTrick":true,"staminaTrickText":"Spend up to your Strength or Dexterity bonus (whichever is greater) in stamina points to add that many points to your CMD against an opponent's grapple attempt against you, echoing the official Improved Grapple stamina trick. GM Approval required for EitR ruling."},
 {"id":"simple_weapon_proficiency","name":"Simple Weapon Proficiency","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Proficiency"],"summary":"No penalty on attack rolls with simple weapons. A combat feat, so it can be gained temporarily via Martial Flexibility if the character somehow lacks it (rare for a Brawler, who has it from 1st level).","hasStaminaTrick":false,"staminaTrickText":""},
-{"id":"weapon_proficiency","name":"Weapon Proficiency","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Proficiency"],"summary":"EITR's replacement for Martial Weapon Proficiency and Exotic Weapon Proficiency, both of which are removed entirely. Grants proficiency (no attack penalty) with every weapon in one chosen EITR weapon group, instead of a single weapon. Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit.","hasStaminaTrick":false,"staminaTrickText":""},
+{"id":"weapon_proficiency","name":"Weapon Proficiency","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"selectPerUse":true,"tags":["Proficiency"],"summary":"EITR's replacement for Martial Weapon Proficiency and Exotic Weapon Proficiency, both of which are removed entirely. Grants proficiency (no attack penalty) with every weapon in one chosen EITR weapon group, instead of a single weapon. Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit.","hasStaminaTrick":false,"staminaTrickText":""},
 {"id":"dodge","name":"Dodge","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Defense"],"summary":"EITR merges Mobility into this feat entirely — Mobility no longer exists as a separate feat. Grants a +1 dodge bonus to AC against all attacks, increasing to +4 against attacks of opportunity provoked by movement.","hasStaminaTrick":true,"staminaTrickText":"Spend up to twice your Dexterity bonus in stamina points: if you moved your speed or more this turn, add half the points spent (round down) to your Dodge bonus to AC until the start of your next turn."},
 {"id":"spring_attack","name":"Spring Attack","isCombatFeat":true,"reqBAB":4,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["dodge"],"reqWeaponGroup":null,"tags":["Offense","Style"],"summary":"Move before and after a melee attack without provoking an attack of opportunity from the target. Prerequisite is Dodge alone under EITR, since Mobility's effect is already folded into Dodge.","hasStaminaTrick":true,"staminaTrickText":"Spend 5 stamina points to perform Spring Attack as a standard action instead of a full-round action."},
 {"id":"greater_trip","name":"Greater Trip","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["deft_maneuvers"],"reqWeaponGroup":null,"tags":["Combat Maneuver","Trip"],"summary":"Allies get an attack of opportunity against any foe you successfully trip.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points after a successful trip made possible by Greater Trip to also deal 1d6 points of falling damage to the target."},
@@ -397,7 +397,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
 {"id":"shot_on_the_run","name":"Shot on the Run","isCombatFeat":true,"reqBAB":4,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["dodge","precise_shot"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"As a full-round action, move up to your speed and make one ranged attack at any point during the movement.","hasStaminaTrick":true,"staminaTrickText":"Spend 5 stamina points to perform Shot on the Run as a standard action instead of a full-round action."},
 {"id":"parting_shot","name":"Parting Shot","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["dodge","shot_on_the_run"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Once per encounter, make a single ranged attack at any point during a withdraw action.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points to use Parting Shot a second time in the same encounter (maximum twice per encounter)."},
 {"id":"pinpoint_targeting","name":"Pinpoint Targeting","isCombatFeat":true,"reqBAB":16,"reqStats":{"str":0,"dex":19,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["improved_precise_shot","precise_shot"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"As a standard action, make a single ranged attack that ignores all of the target's armor, natural armor, and shield AC bonuses (you can't move this round to gain the benefit).","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points to take a 5-foot step immediately after your Pinpoint Targeting attack, or 5 stamina points to instead move up to half your speed as a move action."},
-{"id":"rapid_reload","name":"Rapid Reload","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Reload a crossbow or thrown-group weapon as a free action (light/hand crossbow, sling) or move action (heavy crossbow) instead of the normal move/full-round action, with no attack-of-opportunity risk. Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit.","hasStaminaTrick":true,"staminaTrickText":"Spend 5 stamina points to reduce your reload time one further step (standard to move, move to swift, or swift to free) — this doesn't have to be the weapon you chose for Rapid Reload. If your reload is already a free action, instead spend 2 stamina points for a +1 bonus on all damage rolls during that full attack."},
+{"id":"rapid_reload","name":"Rapid Reload","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"selectPerUse":true,"tags":["Offense"],"summary":"Reload a crossbow or thrown-group weapon as a free action (light/hand crossbow, sling) or move action (heavy crossbow) instead of the normal move/full-round action, with no attack-of-opportunity risk. Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit.","hasStaminaTrick":true,"staminaTrickText":"Spend 5 stamina points to reduce your reload time one further step (standard to move, move to swift, or swift to free) — this doesn't have to be the weapon you chose for Rapid Reload. If your reload is already a free action, instead spend 2 stamina points for a +1 bonus on all damage rolls during that full attack."},
 {"id":"greater_vital_strike","name":"Greater Vital Strike","isCombatFeat":true,"reqBAB":16,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["improved_vital_strike","vital_strike"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Roll your weapon's damage dice four times on a single standard-action attack.","hasStaminaTrick":true,"staminaTrickText":"Spend 4 stamina points (instead of Vital Strike's 2) to reroll up to 4 of your weapon's damage dice after rolling Greater Vital Strike damage, taking the new results."},
 {"id":"whirling_cleave","name":"Whirling Cleave","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":13,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["cleave","great_cleave"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Take a free 5-foot step during a Cleave or Great Cleave chain if it brings another foe within reach.","hasStaminaTrick":false,"staminaTrickText":""},
 {"id":"whirlwind_attack","name":"Whirlwind Attack","isCombatFeat":true,"reqBAB":4,"reqStats":{"str":0,"dex":13,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["combat_reflexes","dodge","spring_attack"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Give up your regular attacks to instead make one melee attack at your highest bonus against every foe within reach.","hasStaminaTrick":true,"staminaTrickText":"Spend 5 stamina points per extra attack to apply bonus or extra attacks you have from other feats, spells, or abilities to a Whirlwind Attack (Whirlwind Attack itself still grants only one attack per foe in reach)."},
@@ -426,12 +426,12 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
 {"id":"greater_penetrating_strike","name":"Greater Penetrating Strike","isCombatFeat":true,"reqBAB":0,"reqFighterLevel":16,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["penetrating_strike"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"As Penetrating Strike, but ignores up to 10 points of damage reduction (5 for DR /-). Requires fighter level 16 — reachable via Martial Training.","hasStaminaTrick":true,"staminaTrickText":"Spend 5 stamina points: allies within 30 feet also ignore 10 points of the target's damage reduction (5 against DR /-) for 1 round, and the benefit extends to your other weapons as well."},
 {"id":"deadly_stroke","name":"Deadly Stroke","isCombatFeat":true,"reqBAB":11,"reqFighterLevel":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["dazzling_display","shatter_defenses","greater_weapon_focus"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"As a standard action, make a single attack with a weapon from your Greater Weapon Focus group against a stunned or flat-footed foe — if it hits, deal double damage plus 1 Con bleed. Gated on the Close-group Greater Weapon Focus, matching this tracker’s Dazzling Display/Shatter Defenses precedent.","hasStaminaTrick":true,"staminaTrickText":"Spend 5 stamina points to make a Deadly Stroke attack against a dazed foe, or 10 stamina points to make one against a foe you're flanking."},
 {"id":"greater_shield_focus","name":"Greater Shield Focus","isCombatFeat":true,"reqBAB":1,"reqFighterLevel":8,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["shield_focus","shield_proficiency"],"reqWeaponGroup":null,"tags":["Defense"],"summary":"+1 further AC bonus from any shield (stacking with Shield Focus); the ranged-attack AC bonus from Shield Focus now also applies against ranged touch attacks. Requires fighter level 8 — reachable via Martial Training.","hasStaminaTrick":true,"staminaTrickText":"Spend up to 4 stamina points to increase your shield's AC bonus against a single incoming attack by the points spent. Doesn't stack with the Shield Focus stamina trick."},
-{"id":"weapon_focus","name":"Weapon Focus (Type)","isCombatFeat":true,"reqBAB":1,"reqFighterLevel":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"+1 attack bonus with all weapons in one EITR weapon group (Close-group Weapon Focus also covers unarmed strikes). Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit. This tracker doesn't track which group you picked each time, so downstream feats that require Weapon Focus (Weapon Specialization, Greater Weapon Focus, Dazzling Display, Penetrating Strike, etc.) just check that you have Weapon Focus in *some* group, not the matching one — same real-table caveat as the real feat's 'choose a group each time you take it' design.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points, once per round, to gain your Weapon Focus attack bonus with a weapon from a different group you don't have Weapon Focus in, until the start of your next turn."},
-{"id":"improved_critical","name":"Improved Critical (Type)","isCombatFeat":true,"reqBAB":8,"reqFighterLevel":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Double the threat range of weapons in one EITR weapon group (Close-group also covers unarmed strikes). Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit.","hasStaminaTrick":true,"staminaTrickText":"Spend 5 stamina points before you make an attack roll with a weapon in this group: if the attack misses the weapon's threat range by 3 or less, you may still attempt a critical confirmation roll. Success deals double damage, though the hit still isn't treated as a critical hit for other purposes."},
-{"id":"weapon_specialization","name":"Weapon Specialization (Type)","isCombatFeat":true,"reqBAB":0,"reqFighterLevel":4,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["weapon_focus"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"+2 bonus on damage rolls with all weapons in one EITR weapon group. Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit (should match a group you already have Weapon Focus in). Requires fighter level 4 — reachable because Brawler's Martial Training class feature counts brawler level as fighter level for feat prerequisites.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points, once per round, to gain your Weapon Specialization damage bonus with a weapon from a different group you don't have this feat for, until the start of your next turn."},
-{"id":"greater_weapon_focus","name":"Greater Weapon Focus (Type)","isCombatFeat":true,"reqBAB":1,"reqFighterLevel":8,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["weapon_focus"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"+1 further attack bonus (stacking with Weapon Focus) with all weapons in one EITR weapon group. Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit (should match a group you already have Weapon Focus in). Requires fighter level 8 — reachable via Martial Training.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points, once per round, to gain your Greater Weapon Focus attack bonus with a weapon from a different group you don't have this feat for, until the start of your next turn."},
-{"id":"greater_weapon_specialization","name":"Greater Weapon Specialization (Type)","isCombatFeat":true,"reqBAB":1,"reqFighterLevel":12,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["weapon_specialization","greater_weapon_focus"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"+2 further bonus on damage rolls (stacking with Weapon Specialization) with all weapons in one EITR weapon group. Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit (should match a group you already have Weapon Specialization and Greater Weapon Focus in). Requires fighter level 12 — reachable via Martial Training.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points, once per round, to gain your Greater Weapon Specialization damage bonus with a weapon from a different group you don't have this feat for, until the start of your next turn."},
-{"id":"point_blank_master","name":"Point-Blank Master (Type)","isCombatFeat":true,"reqBAB":0,"reqFighterLevel":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["weapon_specialization"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"No attack of opportunity for firing a weapon from one ranged EITR weapon group while threatened. Real prerequisite is Weapon Specialization with the selected group, and the group is restricted to Bows, Crossbows, or Thrown only — pick the specific group at the moment you gain the benefit.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points to avoid provoking an attack of opportunity when firing or throwing a weapon from this group, or when making a ranged touch attack with one."}
+{"id":"weapon_focus","name":"Weapon Focus (Type)","isCombatFeat":true,"reqBAB":1,"reqFighterLevel":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"selectPerUse":true,"tags":["Offense"],"summary":"+1 attack bonus with all weapons in one EITR weapon group (Close-group Weapon Focus also covers unarmed strikes). Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit. This tracker doesn't track which group you picked each time, so downstream feats that require Weapon Focus (Weapon Specialization, Greater Weapon Focus, Dazzling Display, Penetrating Strike, etc.) just check that you have Weapon Focus in *some* group, not the matching one — same real-table caveat as the real feat's 'choose a group each time you take it' design.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points, once per round, to gain your Weapon Focus attack bonus with a weapon from a different group you don't have Weapon Focus in, until the start of your next turn."},
+{"id":"improved_critical","name":"Improved Critical (Type)","isCombatFeat":true,"reqBAB":8,"reqFighterLevel":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"selectPerUse":true,"tags":["Offense"],"summary":"Double the threat range of weapons in one EITR weapon group (Close-group also covers unarmed strikes). Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit.","hasStaminaTrick":true,"staminaTrickText":"Spend 5 stamina points before you make an attack roll with a weapon in this group: if the attack misses the weapon's threat range by 3 or less, you may still attempt a critical confirmation roll. Success deals double damage, though the hit still isn't treated as a critical hit for other purposes."},
+{"id":"weapon_specialization","name":"Weapon Specialization (Type)","isCombatFeat":true,"reqBAB":0,"reqFighterLevel":4,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["weapon_focus"],"reqWeaponGroup":null,"selectPerUse":true,"tags":["Offense"],"summary":"+2 bonus on damage rolls with all weapons in one EITR weapon group. Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit (should match a group you already have Weapon Focus in). Requires fighter level 4 — reachable because Brawler's Martial Training class feature counts brawler level as fighter level for feat prerequisites.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points, once per round, to gain your Weapon Specialization damage bonus with a weapon from a different group you don't have this feat for, until the start of your next turn."},
+{"id":"greater_weapon_focus","name":"Greater Weapon Focus (Type)","isCombatFeat":true,"reqBAB":1,"reqFighterLevel":8,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["weapon_focus"],"reqWeaponGroup":null,"selectPerUse":true,"tags":["Offense"],"summary":"+1 further attack bonus (stacking with Weapon Focus) with all weapons in one EITR weapon group. Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit (should match a group you already have Weapon Focus in). Requires fighter level 8 — reachable via Martial Training.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points, once per round, to gain your Greater Weapon Focus attack bonus with a weapon from a different group you don't have this feat for, until the start of your next turn."},
+{"id":"greater_weapon_specialization","name":"Greater Weapon Specialization (Type)","isCombatFeat":true,"reqBAB":1,"reqFighterLevel":12,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["weapon_specialization","greater_weapon_focus"],"reqWeaponGroup":null,"selectPerUse":true,"tags":["Offense"],"summary":"+2 further bonus on damage rolls (stacking with Weapon Specialization) with all weapons in one EITR weapon group. Selected per-use when flexed — pick the specific weapon group at the moment you gain the benefit (should match a group you already have Weapon Specialization and Greater Weapon Focus in). Requires fighter level 12 — reachable via Martial Training.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points, once per round, to gain your Greater Weapon Specialization damage bonus with a weapon from a different group you don't have this feat for, until the start of your next turn."},
+{"id":"point_blank_master","name":"Point-Blank Master (Type)","isCombatFeat":true,"reqBAB":0,"reqFighterLevel":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["weapon_specialization"],"reqWeaponGroup":null,"selectPerUse":true,"tags":["Offense"],"summary":"No attack of opportunity for firing a weapon from one ranged EITR weapon group while threatened. Real prerequisite is Weapon Specialization with the selected group, and the group is restricted to Bows, Crossbows, or Thrown only — pick the specific group at the moment you gain the benefit.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points to avoid provoking an attack of opportunity when firing or throwing a weapon from this group, or when making a ranged touch attack with one."}
 ]
 </script>
 
@@ -890,11 +890,30 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
     return state.knownFeats.includes('combat_stamina');
   }
 
+  // "Select per-use" feats (Weapon Focus, Weapon Proficiency, etc.) can be
+  // known multiple times for different weapons/groups, so a single known
+  // entry may carry a user-supplied detail string alongside the feat id —
+  // stored as "<id>|<detail>" in state.knownFeats. Every other entry is
+  // still just a bare id, exactly as before this existed.
+  function knownEntryBaseId(entry){
+    const i = entry.indexOf('|');
+    return i === -1 ? entry : entry.slice(0, i);
+  }
+  function knownEntryDetail(entry){
+    const i = entry.indexOf('|');
+    return i === -1 ? '' : entry.slice(i+1);
+  }
+  function isFeatKnown(featId){
+    return state.knownFeats.some(k => knownEntryBaseId(k) === featId);
+  }
+
   function getKnownFeatIdSet(){
-    // Manually known feats + always-injected baseline feats (both the
-    // unconditional ones and the level-gated ones), used for BACKGROUND
-    // prerequisite validation only.
-    const set = new Set(state.knownFeats);
+    // Manually known feats (unwrapped to their base id — a "select
+    // per-use" feat like Weapon Focus may be known multiple times with
+    // different details, stored as "<id>|<detail>") + always-injected
+    // baseline feats, both the unconditional ones and the level-gated
+    // ones. Used for BACKGROUND prerequisite validation only.
+    const set = new Set(state.knownFeats.map(knownEntryBaseId));
     BASELINE_FEAT_IDS.forEach(id => set.add(id));
     Object.keys(LEVEL_GATED_BASELINE_FEATS).forEach(id => {
       if(isBaselineFeat(id)) set.add(id);
@@ -993,7 +1012,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
     // "Feats The Character Has") — it's not a flex use at all, so it
     // short-circuits ahead of the static gate: however the character
     // came to qualify for it, they already did.
-    if(state.knownFeats.includes(featId)){
+    if(isFeatKnown(featId)){
       return { status:'known', chain:[featId], reason:'' };
     }
 
@@ -1099,20 +1118,32 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
     document.getElementById('stamina-warn').style.display = hasCombatStamina() ? 'none' : '';
   }
 
+  // "Weapon Focus (Type)" etc. display their picked detail in place of the
+  // literal word "Type"; select-per-use feats with no "(Type)" in their
+  // name (Weapon Proficiency, Rapid Reload) get the detail appended instead.
+  function knownChipLabel(feat, detail){
+    if(!detail) return feat.name;
+    return feat.name.includes('(Type)') ? feat.name.replace('(Type)', '('+detail+')') : feat.name+' ('+detail+')';
+  }
+
   function renderKnownChips(){
     const wrap = document.getElementById('known-chips');
     wrap.innerHTML = '';
-    state.knownFeats.forEach(id => {
+    state.knownFeats.forEach(entry => {
+      const id = knownEntryBaseId(entry);
+      const detail = knownEntryDetail(entry);
       const feat = FEATS_BY_ID[id];
       if(!feat) return;
       const chip = document.createElement('span');
       chip.className = 'known-chip';
-      chip.innerHTML = '<span>'+feat.name+'</span>';
+      const label = document.createElement('span');
+      label.textContent = knownChipLabel(feat, detail);
+      chip.appendChild(label);
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.textContent = '✕';
       btn.addEventListener('click', () => {
-        state.knownFeats = state.knownFeats.filter(f => f !== id);
+        state.knownFeats = state.knownFeats.filter(f => f !== entry);
         persistAndRender();
       });
       chip.appendChild(btn);
@@ -1164,7 +1195,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
       if(!q){ dropdown.style.display = 'none'; dropdown.innerHTML=''; return; }
       const results = FEATS.filter(f =>
         !isBaselineFeat(f.id) &&
-        !state.knownFeats.includes(f.id) &&
+        (f.selectPerUse || !isFeatKnown(f.id)) &&
         f.name.toLowerCase().includes(q)
       ).slice(0, 8);
       if(results.length === 0){ dropdown.style.display = 'none'; dropdown.innerHTML=''; return; }
@@ -1172,9 +1203,21 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
       results.forEach(f => {
         const item = document.createElement('div');
         item.className = 'known-dropdown-item';
-        item.innerHTML = f.name + '<div class="kdi-meta">BAB ' + f.reqBAB + (f.reqWeaponGroup ? ' · '+f.reqWeaponGroup : '') + '</div>';
+        const metaBits = ['BAB ' + f.reqBAB];
+        if(f.reqWeaponGroup) metaBits.push(f.reqWeaponGroup);
+        if(f.selectPerUse) metaBits.push('asks which weapon/group on add');
+        item.innerHTML = f.name + '<div class="kdi-meta">' + metaBits.join(' · ') + '</div>';
         item.addEventListener('click', () => {
-          state.knownFeats.push(f.id);
+          if(f.selectPerUse){
+            const detail = prompt('Which weapon or weapon group is this for?', '');
+            if(detail === null) return; // cancelled
+            const trimmed = detail.trim();
+            if(!trimmed) return;
+            const entry = f.id + '|' + trimmed;
+            if(!state.knownFeats.includes(entry)) state.knownFeats.push(entry);
+          } else {
+            state.knownFeats.push(f.id);
+          }
           input.value = '';
           dropdown.style.display = 'none';
           dropdown.innerHTML = '';
