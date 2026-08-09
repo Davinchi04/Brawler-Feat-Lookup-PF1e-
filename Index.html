@@ -337,7 +337,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
 {"id":"combat_reflexes","name":"Combat Reflexes","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Defense"],"summary":"Make additional attacks of opportunity equal to your Dex bonus; may act on attacks of opportunity even when flat-footed.","hasStaminaTrick":true,"staminaTrickText":"Spend 5 stamina points: after missing with an attack of opportunity, immediately make a second attack of opportunity against the same triggering action at a -5 penalty. This uses one of your attacks of opportunity for the round."},
 {"id":"cleave","name":"Cleave","isCombatFeat":true,"reqBAB":1,"reqStats":{"str":13,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Take a further swing at an adjacent foe after felling an opponent, at a -2 penalty to AC until your next turn. No longer requires Power Attack under EITR, since Power Attack is removed entirely (replaced by the free Risky Strike combat option).","hasStaminaTrick":true,"staminaTrickText":"Spend 4 stamina points when you use Cleave to negate its -2 AC penalty until the start of your next turn."},
 {"id":"great_cleave","name":"Great Cleave","isCombatFeat":true,"reqBAB":4,"reqStats":{"str":13,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["cleave"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"No limit to the number of additional Cleave attacks in a round as long as each successive blow fells its target. No longer requires Power Attack under EITR.","hasStaminaTrick":true,"staminaTrickText":"Spend 5 stamina points, once per round, after a Cleave attack made via Great Cleave misses: make another Cleave attack against a different adjacent foe anyway."},
-{"id":"two_weapon_fighting","name":"Two-Weapon Fighting","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":15,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Reduces the penalties for fighting with two weapons (or two-handed unarmed strikes).","hasStaminaTrick":true,"staminaTrickText":"Spend any number of stamina points: reduce your primary-hand two-weapon fighting penalty by 1 for every 2 points spent (to a minimum of 0), until the start of your next turn."},
+{"id":"two_weapon_fighting","name":"Two-Weapon Fighting","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":15,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Reduces the penalties for fighting with two weapons (or two-handed unarmed strikes). Unmodified core-rulebook feat — but from 2nd level, Brawler's Flurry (a core Brawler class feature, unrelated to EITR) gives every brawler this feat outright, with no Dex requirement, when attacking with any combination of unarmed strikes, Close-group weapons, or weapons with the 'monk' special feature. This tracker treats it as baseline/always-known from level 2 onward for that reason, even though it's narrower than full unconditional Two-Weapon Fighting.","hasStaminaTrick":true,"staminaTrickText":"Spend any number of stamina points: reduce your primary-hand two-weapon fighting penalty by 1 for every 2 points spent (to a minimum of 0), until the start of your next turn."},
 {"id":"greater_two_weapon_fighting","name":"Greater Two-Weapon Fighting","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":17,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":["two_weapon_fighting"],"reqWeaponGroup":null,"tags":["Offense"],"summary":"EITR's consolidated replacement for Improved Two-Weapon Fighting, which no longer exists as a separate feat — this single feat now covers both tiers. Prerequisites drop to Dex 17, Two-Weapon Fighting, BAB +6 (down from the old Dex 19 / BAB +11 for the vanilla Greater version). Grants a second off-hand attack at a -5 penalty immediately, and once your BAB reaches +11 you also gain the third off-hand attack at -10, same as the old Greater Two-Weapon Fighting granted on its own.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points: if you hit with the third off-hand attack Greater Two-Weapon Fighting grants at BAB +16, make one further off-hand attack at a -15 penalty."},
 {"id":"vital_strike","name":"Vital Strike","isCombatFeat":true,"reqBAB":6,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"Roll your weapon's (or unarmed strike's) damage dice twice on a single standard-action attack.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points: after rolling your Vital Strike damage, reroll up to 2 of the weapon's damage dice. You must accept the new results."},
 {"id":"precise_shot","name":"Precise Shot","isCombatFeat":true,"reqBAB":0,"reqStats":{"str":0,"dex":0,"con":0,"int":0,"wis":0,"cha":0},"reqSkills":{},"reqFeats":[],"reqWeaponGroup":null,"tags":["Offense"],"summary":"No -4 penalty on ranged attacks against a target engaged in melee. Since Point-Blank Shot is an EITR baseline feat granted to everyone, Precise Shot has no prerequisite of its own and is now the entry point for the rest of the archery feat chain — every feat that used to require Point-Blank Shot requires this instead.","hasStaminaTrick":true,"staminaTrickText":"Spend 2 stamina points as part of a standard-action ranged attack against a foe engaged in melee with your ally: instead of dealing damage, grant that ally a +2 bonus on their next attack roll against the target, or a +2 AC bonus against the target's next attack, until the start of your next turn."},
@@ -633,6 +633,20 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
   // grant and nothing to track here.
   const BASELINE_FEAT_IDS = ["unarmed_combatant"];
 
+  // Feats granted automatically from a specific level onward, rather than
+  // unconditionally — e.g. Brawler's Flurry (2nd level) gives the brawler
+  // the Two-Weapon Fighting feat when attacking with unarmed strikes,
+  // Close-group weapons, or weapons with the "monk" special feature. This
+  // is a real, unmodified core Brawler class feature (unrelated to EITR),
+  // not blanket unconditional Two-Weapon Fighting for any weapon pairing.
+  const LEVEL_GATED_BASELINE_FEATS = { "two_weapon_fighting": 2 };
+
+  function isBaselineFeat(featId){
+    if(BASELINE_FEAT_IDS.includes(featId)) return true;
+    const minLevel = LEVEL_GATED_BASELINE_FEATS[featId];
+    return minLevel !== undefined && state.level >= minLevel;
+  }
+
   const WEAPON_GROUPS = ["Axes","Bows","Close","Crossbows","Flails","Heavy Blades",
     "Light Blades","Monk","Natural","Polearms","Spears","Thrown"];
 
@@ -877,10 +891,14 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
   }
 
   function getKnownFeatIdSet(){
-    // Manually known feats + always-injected EITR baseline feats,
-    // used for BACKGROUND prerequisite validation only.
+    // Manually known feats + always-injected baseline feats (both the
+    // unconditional ones and the level-gated ones), used for BACKGROUND
+    // prerequisite validation only.
     const set = new Set(state.knownFeats);
     BASELINE_FEAT_IDS.forEach(id => set.add(id));
+    Object.keys(LEVEL_GATED_BASELINE_FEATS).forEach(id => {
+      if(isBaselineFeat(id)) set.add(id);
+    });
     return set;
   }
 
@@ -967,7 +985,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
     const feat = FEATS_BY_ID[featId];
     if(!feat) return { status:'locked', chain:[], reason:'Unknown feat id.' };
 
-    if(BASELINE_FEAT_IDS.includes(featId)){
+    if(isBaselineFeat(featId)){
       return { status:'baseline', chain:[featId], reason:'' };
     }
 
@@ -1145,7 +1163,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
       const q = input.value.trim().toLowerCase();
       if(!q){ dropdown.style.display = 'none'; dropdown.innerHTML=''; return; }
       const results = FEATS.filter(f =>
-        !BASELINE_FEAT_IDS.includes(f.id) &&
+        !isBaselineFeat(f.id) &&
         !state.knownFeats.includes(f.id) &&
         f.name.toLowerCase().includes(q)
       ).slice(0, 8);
