@@ -65,6 +65,12 @@ a{color:var(--brass-soft);}
   background:linear-gradient(90deg, var(--orange-dim), var(--brass));
   color:#171008;
 }
+.ruleset-note{
+  text-align:center; padding:6px 16px;
+  font-family:var(--mono); font-size:11px; color:var(--muted);
+  border-bottom:1px solid var(--border);
+  background:var(--panel);
+}
 
 .topbar{
   display:flex; align-items:center; justify-content:space-between;
@@ -453,6 +459,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
      APP MARKUP
      ============================================================ -->
 <div class="ruleset-banner">Elephant in the Room Ruleset</div>
+<div class="ruleset-note">Characters here are stored separately from the Vanilla PF1e tool and won't appear over there — use Export/Import to move one across.</div>
 <div class="topbar">
   <div class="brand">
     <div class="brand-row">
@@ -461,7 +468,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
     <div class="sub">Martial Flexibility Feat Lookup Tool</div>
   </div>
   <div class="roster-bar">
-    <a class="ruleset-switch" href="Index-Vanilla.html" title="Switch to the vanilla PF1e (no EITR) version of this tool">⇄ Vanilla PF1E</a>
+    <a class="ruleset-switch" href="Index-Vanilla.html" title="Switch to the vanilla PF1e (no EITR) version of this tool. Characters are stored separately per ruleset — use Export/Import to move one across.">⇄ Vanilla PF1E</a>
     <select id="roster-select" title="Active character"></select>
     <button id="roster-new" type="button" title="Create a new character">+ New</button>
     <button id="roster-duplicate" type="button" title="Duplicate this character">⧉ Duplicate</button>
@@ -834,6 +841,7 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
   function exportActiveCharacter(){
     const payload = {
       flexLedgerExport: 1,
+      ruleset: 'eitr',
       exportedAt: new Date().toISOString(),
       character: state
     };
@@ -859,6 +867,10 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
         const parsed = JSON.parse(reader.result);
         const raw = (parsed && typeof parsed === 'object' && parsed.character) ? parsed.character : parsed;
         if(!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('Not a character export.');
+        if(parsed && parsed.ruleset && parsed.ruleset !== 'eitr'){
+          const proceed = confirm('This character was exported from the Vanilla PF1e tool, not this EITR one. Feats and other ruleset-specific picks won\'t carry over correctly — only basics like name, level, and stats will. Import anyway?');
+          if(!proceed) return;
+        }
         const imported = normalizeCharacterState(raw);
         const id = makeCharacterId();
         roster.characters[id] = imported;
