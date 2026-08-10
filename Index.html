@@ -58,7 +58,7 @@ a{color:var(--brass-soft);}
 /* ============================================================
    SHELL / LAYOUT
    ============================================================ */
-select.ruleset-banner{
+#ruleset-banner-select{
   display:inline-block; width:auto; margin:0;
   font-family:var(--display); font-size:13px; font-weight:700;
   letter-spacing:.08em; text-transform:uppercase;
@@ -66,8 +66,8 @@ select.ruleset-banner{
   color:#171008; border:none; border-radius:4px; padding:4px 10px;
   cursor:pointer;
 }
-select.ruleset-banner:focus{outline:2px solid var(--brass-soft); outline-offset:1px;}
-select.ruleset-banner option{
+#ruleset-banner-select:focus{outline:2px solid var(--brass-soft); outline-offset:1px;}
+#ruleset-banner-select option{
   font-family:var(--display); text-transform:none; letter-spacing:normal;
   background:var(--panel-2); color:var(--text);
 }
@@ -513,14 +513,14 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
   <div class="brand">
     <div class="brand-row">
       <h1>PF1e Brawler Feat Finder</h1>
-      <select class="ruleset-banner" id="ruleset-banner-select" title="Switch ruleset — characters are stored separately per ruleset; use Export/Import to move one across.">
-        <option value="Index.html" selected>Elephant in the Room Ruleset</option>
-        <option value="Index-Vanilla.html">Vanilla Pathfinder 1e Ruleset</option>
-      </select>
     </div>
     <div class="sub">Martial Flexibility Feat Lookup Tool</div>
   </div>
   <div class="roster-bar">
+    <select class="ruleset-banner" id="ruleset-banner-select" title="Switch ruleset — characters are stored separately per ruleset; use Export/Import to move one across.">
+      <option value="Index.html" selected>Elephant in the Room Ruleset</option>
+      <option value="Index-Vanilla.html">Vanilla Pathfinder 1e Ruleset</option>
+    </select>
     <select id="roster-select" title="Active character"></select>
     <button id="roster-new" type="button" title="Create a new character">+ New</button>
     <button id="roster-duplicate" type="button" title="Duplicate this character">⧉ Duplicate</button>
