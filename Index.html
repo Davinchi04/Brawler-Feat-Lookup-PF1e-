@@ -58,18 +58,18 @@ a{color:var(--brass-soft);}
 /* ============================================================
    SHELL / LAYOUT
    ============================================================ */
-.ruleset-banner{
-  text-align:center; padding:12px 16px;
-  font-family:var(--display); font-size:22px; font-weight:700;
-  letter-spacing:.1em; text-transform:uppercase;
+select.ruleset-banner{
+  display:inline-block; width:auto; margin:0;
+  font-family:var(--display); font-size:13px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase;
   background:linear-gradient(90deg, var(--orange-dim), var(--brass));
-  color:#171008;
+  color:#171008; border:none; border-radius:4px; padding:4px 10px;
+  cursor:pointer;
 }
-.ruleset-note{
-  text-align:center; padding:6px 16px;
-  font-family:var(--mono); font-size:11px; color:var(--muted);
-  border-bottom:1px solid var(--border);
-  background:var(--panel);
+select.ruleset-banner:focus{outline:2px solid var(--brass-soft); outline-offset:1px;}
+select.ruleset-banner option{
+  font-family:var(--display); text-transform:none; letter-spacing:normal;
+  background:var(--panel-2); color:var(--text);
 }
 
 .topbar{
@@ -99,12 +99,6 @@ a{color:var(--brass-soft);}
 }
 .roster-bar button:hover{border-color:var(--brass-soft); color:var(--text);}
 .roster-bar button.danger:hover{border-color:var(--red); color:var(--red);}
-.roster-bar .ruleset-switch{
-  background:var(--panel-2); border:1px solid var(--brass); color:var(--brass-soft);
-  border-radius:6px; padding:7px 10px; font-size:12px; line-height:1; text-decoration:none;
-  display:inline-flex; align-items:center;
-}
-.roster-bar .ruleset-switch:hover{background:rgba(201,138,61,.12); color:var(--text);}
 
 .app-shell{
   display:grid;
@@ -515,17 +509,18 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
 <!-- ============================================================
      APP MARKUP
      ============================================================ -->
-<div class="ruleset-banner">Elephant in the Room Ruleset</div>
-<div class="ruleset-note">Characters here are stored separately from the Vanilla PF1e tool and won't appear over there — use Export/Import to move one across.</div>
 <div class="topbar">
   <div class="brand">
     <div class="brand-row">
       <h1>PF1e Brawler Feat Finder</h1>
+      <select class="ruleset-banner" id="ruleset-banner-select" title="Switch ruleset — characters are stored separately per ruleset; use Export/Import to move one across.">
+        <option value="Index.html" selected>Elephant in the Room Ruleset</option>
+        <option value="Index-Vanilla.html">Vanilla Pathfinder 1e Ruleset</option>
+      </select>
     </div>
     <div class="sub">Martial Flexibility Feat Lookup Tool</div>
   </div>
   <div class="roster-bar">
-    <a class="ruleset-switch" href="Index-Vanilla.html" title="Switch to the vanilla PF1e (no EITR) version of this tool. Characters are stored separately per ruleset — use Export/Import to move one across.">⇄ Vanilla PF1E</a>
     <select id="roster-select" title="Active character"></select>
     <button id="roster-new" type="button" title="Create a new character">+ New</button>
     <button id="roster-duplicate" type="button" title="Duplicate this character">⧉ Duplicate</button>
@@ -1598,6 +1593,9 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
   }
 
   function initEvents(){
+    document.getElementById('ruleset-banner-select').addEventListener('change', (e) => {
+      if(e.target.value && e.target.value !== 'Index.html') window.location.href = e.target.value;
+    });
     document.getElementById('roster-select').addEventListener('change', (e) => {
       switchActiveCharacter(e.target.value);
     });
