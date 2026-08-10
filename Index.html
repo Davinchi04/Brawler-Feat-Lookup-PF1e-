@@ -522,11 +522,14 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
       <option value="Index-Vanilla.html">Vanilla Pathfinder 1e Ruleset</option>
     </select>
     <select id="roster-select" title="Active character"></select>
-    <button id="roster-new" type="button" title="Create a new character">+ New</button>
-    <button id="roster-duplicate" type="button" title="Duplicate this character">⧉ Duplicate</button>
-    <button id="roster-delete" type="button" class="danger" title="Delete this character">✕ Delete</button>
-    <button id="roster-export" type="button" title="Export this character to a JSON file and copy it to your clipboard">⇩ Export</button>
-    <button id="roster-import" type="button" title="Import a character from a JSON file">⇧ Import</button>
+    <select id="roster-actions-select" title="Character actions">
+      <option value="" selected disabled>Actions ▾</option>
+      <option value="new">+ New</option>
+      <option value="duplicate">⧉ Duplicate</option>
+      <option value="delete">✕ Delete</option>
+      <option value="export">⇩ Export</option>
+      <option value="import">⇧ Import</option>
+    </select>
     <input type="file" id="roster-import-file" accept="application/json,.json" style="display:none;">
   </div>
 </div>
@@ -1599,12 +1602,14 @@ footer.credits{padding:22px; text-align:center; color:var(--muted-2); font-size:
     document.getElementById('roster-select').addEventListener('change', (e) => {
       switchActiveCharacter(e.target.value);
     });
-    document.getElementById('roster-new').addEventListener('click', createNewCharacter);
-    document.getElementById('roster-duplicate').addEventListener('click', duplicateActiveCharacter);
-    document.getElementById('roster-delete').addEventListener('click', deleteActiveCharacter);
-    document.getElementById('roster-export').addEventListener('click', exportActiveCharacter);
-    document.getElementById('roster-import').addEventListener('click', () => {
-      document.getElementById('roster-import-file').click();
+    document.getElementById('roster-actions-select').addEventListener('change', (e) => {
+      const action = e.target.value;
+      e.target.value = '';
+      if(action === 'new') createNewCharacter();
+      else if(action === 'duplicate') duplicateActiveCharacter();
+      else if(action === 'delete') deleteActiveCharacter();
+      else if(action === 'export') exportActiveCharacter();
+      else if(action === 'import') document.getElementById('roster-import-file').click();
     });
     document.getElementById('roster-import-file').addEventListener('change', (e) => {
       const file = e.target.files[0];
