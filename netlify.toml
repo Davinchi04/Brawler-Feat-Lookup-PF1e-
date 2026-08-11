@@ -1,0 +1,4 @@
+[[redirects]]
+  from = "/"
+  to = "/Index-Vanilla.html"
+  status = 200
